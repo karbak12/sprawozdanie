@@ -40,8 +40,6 @@ Wszystkie dane są standaryzowane, aby umożliwić porównania między krajami i
 
 -   G - wskaźnik Giniego, czyli miara koncentracji rozkładu zmiennej losowej, w tym przypadku nierówności dochodowej, określona na przedziale 0-100 (w procentach). Wartość zerowa wspołczynnika wskazuje na pełną równomierność rozkładu.
 
-<!-- -->
-
 -   Zasoby - szczegółowy podział zasobów
 
     -   IDK CZY TO UWZGLĘDNIMY, to narazie bardziej dla nas, w oryginalnych danych mamy podział: "Consumption", "Income, net", "Income, net/gross", "Earnings, gross", "Income, gross", "Market income", "Taxable income, gross", "Taxable income, net", "Earnings, net", "Monetary income, net", "Monetary income, gross", "Factor income", "Monetary income, net (excluding property income)", "Earnings", "Taxable income, excluding property income", "Taxable income, gross (including deductions)".
@@ -67,11 +65,6 @@ Wszystkie dane są standaryzowane, aby umożliwić porównania między krajami i
 -   czyszczenie wartości, jeśli zachodzi taka konieczność,
 
 -   dyskusję lub obsługę braków danych;
-
-(nie wiem jak to z kodem poniżej usunąć)
-
-```{}
-```
 
 Z bazy danych WIID będziemy w niniejszym raporcie skupiać się na analizie danych z Europy. Z tego powodu, pozostawiłyśmy wartości dotyczące jedynie analizowanego przez nas kontynentu. Zweryfikowałyśmy typy danych dla każdej kolumny, następnie, dla lepszej czytelności, nazwy kolumn zostały zmienione. Wiersze z brakami danych ("NA") usunęłyśmy, aby uniknąć nieciągłości. W krajach rozwiniętych dane o dochodach są powszechniej stosowane w badaniach, niż dane o wydatkach konsumpcyjnych, stąd zdecydowałyśmy się usunąć zmienną "Consumption" w kategorii "Zasoby".
 
@@ -104,18 +97,22 @@ data <- read_csv2("dane_WIID_2023.csv", show_col_types = FALSE) %>%
 ```
 
 ```{r}
-head(data)
+head(data) # To chcę aby się wyświetliło w pdf (albo coś podobnego)
 ```
 
 # Analiza danych
 
 ## Akapit
 
+Może te akapity będą odpowiedziami na poszczególne pytania badawcze?
+
 -   Dla cech kategorycznych: Analiza rozkładu, testy chi-kwadrat, kontyngencje.
 
 -   Dla cech ciągłych: Analiza korelacji, testy t-studenta, regresja liniowa.
 
 Interpretacja wyników - Opisać wyniki analizy, odnosząc się do postawionych wcześniej pytań badawczych. Logicznie przedstawić wyniki, które prowadzą do odpowiedzi na pytania badawcze.
+
+## Akapit
 
 ## Akapit
 
@@ -128,6 +125,7 @@ Na końcu tej sekcji przedstaw wnioski związane z odpowiedziami na pytania bada
 Przypomnienie najważniejszych wniosków z analizy.
 
 # Dyskusja
+Myślę, że to bardzo fajny dodatkowy akapit, który warto uwzględnić na lepsze punkciki :)
 
 -   **Ograniczenia**: Omówienie wszelkiech ograniczeń analizy, np. problem z jakością danych, brakującymi wartościami, czy ograniczonym zakresem badanych zmiennych.
 
