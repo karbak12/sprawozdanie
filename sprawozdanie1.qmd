@@ -1,18 +1,30 @@
 ---
-title: "Sprawozdanie"
-author: "Karolina Bakalarz, Amelia Bieda"
+title: "Sprawozdanie na temat nierówności dochodów w Europie."
+author: 
+  - name: "Karolina Bakalarz"
+    index: "276059"
+  - name: " Amelia Bieda"
+    index: "275973"
 format: pdf
 editor: visual
 lang: pl
 ---
 
-## Opis danych
+# Wstęp
 
-### Cel analizy
+## Cel sprawozdania
 
-Celem naszej analizy jest zbadanie nierówności dochodowych w Europie, z uwzględnieniem różnic wynikających z położenia geograficznego oraz czynników politycznych, takich jak członkostwo w Unii Europejskiej.
+Celem niniejszego sprawozdania jest analiza trzech kluczowych zagadnień związanych z poziomem zamożności i nierówności dochodowych w Europie.
 
-### Pochodzenie danych
+Przede wszystkim, badanie ma na celu zrozumienie, w jaki sposób położenie geograficzne krajów w Europie wpływa na ich poziom zamożności, mierzony poprzez PKB.
+
+Zbadamy również wpływ przynależności do Unii Europejskiej na gospodarki krajów, z naciskiem na ewentualne zmiany w poziomie PKB po akcesji do UE.
+
+Ostatecznie sprawdzimy nierówności dochodowe między poszczególnymi państwami europejskimi, poprzez wyniki wskaźnika Gini'ego.
+
+Taka analiza pozwoli nam lepiej zrozumieć sytuację ekonomiczną w Europie, w kontekście zamożności i rozwoju gospodarczego.
+
+## Źródło danych
 
 Dane wykorzystane w analizie pochodzą z najnowszej wersji World Income Inequality Database (WIID), opublikowanej 28 listopada 2023 roku. WIID to największe dostępne źródło danych o nierównościach dochodowych na świecie, udostępniane bezpłatnie na otwartej licencji.
 
@@ -20,35 +32,103 @@ Dane wykorzystane w analizie pochodzą z najnowszej wersji World Income Inequali
 
 Wszystkie dane są standaryzowane, aby umożliwić porównania między krajami i okresami, co pozwala WIID dostarczać spójne serie czasowe, wskaźniki nierówności oraz pełne rozkłady dochodów na poziomie krajowym i globalnym.
 
-### opis zmiennych (w tym: znaczenie, jednostki, możliwe teoretyczne wartości zmiennych, statystyki opisowe zastanych wartości zmiennych),
+# Opis danych
 
-"country" - kraj 
-"c3"- 3-cyfrowy kod kraju w formacie ISO 3166-1 alpha-3
-"resource_detailed"- szczegółowa koncepcja zasobów
-"scale_detailed"- szczegółowa skala równoważności
-"region_un"-Grupowanie regionalne oparte na geoschemacie Organizacji Narodów Zjednoczonych
-"region_un_sub"-Grupowanie subregionalne oparte na geoschemacie Organizacji Narodów Zjednoczonych
-"eu"- aktualny status należenia do EU
+-   Kraj - określa, do którego europejskiego państwa przynależą dane w badanym wierszu.
 
-### przynajmniej 3 pytania badawcze, na które poszukujecie odpowiedzi, aby zrealizować cel;
+-   Skrót - trzycyfrowy kod kraju w formacie ISO 3166-1.
 
-1.  Czy jest zależność między położeniem geograficznym w Europie a zamożnością?
-2.  Czy dołączenie do UE miało wpływ na zmianę GDP?
-3.  Zbadanie współczynnika nierówności dochodowej w Europie.
+-   G - wskaźnik Giniego, czyli miara koncentracji rozkładu zmiennej losowej, w tym przypadku nierówności dochodowej, określona na przedziale 0-100 (w procentach). Wartość zerowa wspołczynnika wskazuje na pełną równomierność rozkładu.
 
-## Wczytanie danych
+<!-- -->
 
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+-   Zasoby - szczegółowy podział zasobów
 
-```{r}
-1 + 1
+    -   IDK CZY TO UWZGLĘDNIMY, to narazie bardziej dla nas, w oryginalnych danych mamy podział: "Consumption", "Income, net", "Income, net/gross", "Earnings, gross", "Income, gross", "Market income", "Taxable income, gross", "Taxable income, net", "Earnings, net", "Monetary income, net", "Monetary income, gross", "Factor income", "Monetary income, net (excluding property income)", "Earnings", "Taxable income, excluding property income", "Taxable income, gross (including deductions)".
+
+-   Skala - szczegółowa skala normalizacji(?). ?przeskalowane dochody?
+
+    -   "Per capita", "OECD-modified", "Equivalized", "No adjustment", "Square root", "OECD", NA, "National scale", "1977 McClements scale".
+
+-   Region - grupowanie subregionalne, czyli podział na Europę północną, południową, zachodnią i wschodnią (oparte na geoschemacie Organizacji Narodów Zjednoczonych).
+
+-   G - wskaźnik Giniego, czyli miara koncentracji rozkładu zmiennej losowej, w tym przypadku nierówności dochodowej.
+
+-   UE - status należenia do Unii Europejskiej dla odpowiedniego roku.
+
+-   PKB - wartość produktu krajowego brutto (w dolarach amerykańskich?).
+
+## Wczytanie i przygotowanie danych
+
+-   nadanie odpowiednich nazw zmiennych,
+
+-   zadbanie o odpowiednie typy kolumn,
+
+-   czyszczenie wartości, jeśli zachodzi taka konieczność,
+
+-   dyskusję lub obsługę braków danych;
+
+(nie wiem jak to z kodem poniżej usunąć)
+
+```{}
 ```
 
-You can add options to executable code like this
+Z bazy danych WIID będziemy w niniejszym raporcie skupiać się na analizie danych z Europy. Z tego powodu, pozostawiłyśmy wartości dotyczące jedynie analizowanego przez nas kontynentu. Zweryfikowałyśmy typy danych dla każdej kolumny, następnie, dla lepszej czytelności, nazwy kolumn zostały zmienione. Wiersze z brakami danych ("NA") usunęłyśmy, aby uniknąć nieciągłości. W krajach rozwiniętych dane o dochodach są powszechniej stosowane w badaniach, niż dane o wydatkach konsumpcyjnych, stąd zdecydowałyśmy się usunąć zmienną "Consumption" w kategorii "Zasoby".
+
+Po przygotowaniu otrzymałyśmy zbiór około 13 tysięcy wartości w 9 kolumnach. Prezentuje się on następująco:
 
 ```{r}
 #| echo: false
-2 * 2
+#| warning: false
+library(tidyverse)
+
+data <- read_csv2("dane_WIID_2023.csv", show_col_types = FALSE) %>%
+  filter(region_un == "Europe") %>%
+  select(country, c3, year, gini, resource_detailed, scale_detailed, region_un_sub, eu, gdp) %>%
+  mutate(across(c(country, c3, resource_detailed, scale_detailed, region_un_sub, eu), as.factor)) %>%
+  mutate(across(c(year, gini), as.numeric)) %>%
+  filter(resource_detailed != "Consumption") %>%
+  filter(if_all(everything(), ~ !is.na(.))) %>%
+  rename(
+    Kraj = country,
+    Skrót = c3,
+    Rok = year,
+    G = gini,
+    Zasoby = resource_detailed,
+    Skala = scale_detailed,
+    Region = region_un_sub,
+    UE = eu,
+    PKB = gdp
+  )
+
 ```
 
-## Analiza danych
+```{r}
+head(data)
+```
+
+# Analiza danych
+
+## Akapit
+
+-   Dla cech kategorycznych: Analiza rozkładu, testy chi-kwadrat, kontyngencje.
+
+-   Dla cech ciągłych: Analiza korelacji, testy t-studenta, regresja liniowa.
+
+Interpretacja wyników - Opisać wyniki analizy, odnosząc się do postawionych wcześniej pytań badawczych. Logicznie przedstawić wyniki, które prowadzą do odpowiedzi na pytania badawcze.
+
+## Akapit
+
+## Wnioski
+
+Na końcu tej sekcji przedstaw wnioski związane z odpowiedziami na pytania badawcze, np. "Z analizy wynika, że istnieje silna korelacja między PKB a poziomem nierówności dochodowych."
+
+# Podsumowanie
+
+Przypomnienie najważniejszych wniosków z analizy.
+
+# Dyskusja
+
+-   **Ograniczenia**: Omówienie wszelkiech ograniczeń analizy, np. problem z jakością danych, brakującymi wartościami, czy ograniczonym zakresem badanych zmiennych.
+
+-   **Propozycje przyszłych badań**: Zasugerowanie, co można by zbadać w przyszłości, aby poszerzyć lub pogłębić wyniki.
