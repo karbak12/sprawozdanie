@@ -1,0 +1,54 @@
+---
+title: "Sprawozdanie"
+author: "Karolina Bakalarz, Amelia Bieda"
+format: pdf
+editor: visual
+lang: pl
+---
+
+## Opis danych
+
+### Cel analizy
+
+Celem naszej analizy jest zbadanie nierówności dochodowych w Europie, z uwzględnieniem różnic wynikających z położenia geograficznego oraz czynników politycznych, takich jak członkostwo w Unii Europejskiej.
+
+### Pochodzenie danych
+
+Dane wykorzystane w analizie pochodzą z najnowszej wersji World Income Inequality Database (WIID), opublikowanej 28 listopada 2023 roku. WIID to największe dostępne źródło danych o nierównościach dochodowych na świecie, udostępniane bezpłatnie na otwartej licencji.
+
+Źródła danych obejmują raporty krajowe i regionalne publikowane przez instytucje statystyczne i rządowe, międzynarodowe bazy danych, takie jak Światowy Bank, OECD i Eurostat, oraz ankiety i badania gospodarstw domowych dotyczące dochodów, konsumpcji i nierówności.
+
+Wszystkie dane są standaryzowane, aby umożliwić porównania między krajami i okresami, co pozwala WIID dostarczać spójne serie czasowe, wskaźniki nierówności oraz pełne rozkłady dochodów na poziomie krajowym i globalnym.
+
+### opis zmiennych (w tym: znaczenie, jednostki, możliwe teoretyczne wartości zmiennych, statystyki opisowe zastanych wartości zmiennych),
+
+"country" - kraj 
+"c3"- 3-cyfrowy kod kraju w formacie ISO 3166-1 alpha-3
+"resource_detailed"- szczegółowa koncepcja zasobów
+"scale_detailed"- szczegółowa skala równoważności
+"region_un"-Grupowanie regionalne oparte na geoschemacie Organizacji Narodów Zjednoczonych
+"region_un_sub"-Grupowanie subregionalne oparte na geoschemacie Organizacji Narodów Zjednoczonych
+"eu"- aktualny status należenia do EU
+
+### przynajmniej 3 pytania badawcze, na które poszukujecie odpowiedzi, aby zrealizować cel;
+
+1.  Czy jest zależność między położeniem geograficznym w Europie a zamożnością?
+2.  Czy dołączenie do UE miało wpływ na zmianę GDP?
+3.  Zbadanie współczynnika nierówności dochodowej w Europie.
+
+## Wczytanie danych
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+1 + 1
+```
+
+You can add options to executable code like this
+
+```{r}
+#| echo: false
+2 * 2
+```
+
+## Analiza danych
