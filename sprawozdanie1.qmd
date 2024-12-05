@@ -70,7 +70,7 @@ Z bazy danych WIID będziemy w niniejszym raporcie skupiać się na analizie dan
 
 Po przygotowaniu otrzymałyśmy zbiór około 13 tysięcy wartości w 9 kolumnach. Prezentuje się on następująco:
 
-```{r}
+```{r, echo=FALSE, massage=FALSE}
 #| echo: false
 #| warning: false
 library(tidyverse)
@@ -125,6 +125,7 @@ Na końcu tej sekcji przedstaw wnioski związane z odpowiedziami na pytania bada
 Przypomnienie najważniejszych wniosków z analizy.
 
 # Dyskusja
+
 Myślę, że to bardzo fajny dodatkowy akapit, który warto uwzględnić na lepsze punkciki :)
 
 -   **Ograniczenia**: Omówienie wszelkiech ograniczeń analizy, np. problem z jakością danych, brakującymi wartościami, czy ograniczonym zakresem badanych zmiennych.
