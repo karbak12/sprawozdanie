@@ -16,3 +16,6 @@ data2 <- read_csv2("dane_WIID_2023.csv") %>%
 na_in_gini <-  mean(is.na(data2$gini), na.rm = TRUE) * 100
 na_in_scale <- mean(is.na(data2$scale_detailed), na.rm = TRUE) * 100
 print(na_in_gini) # To można uwzględnić w tekście, że np 30% gini to NA 
+
+# Sprawdzenie jakie są kategorie w kolumnie
+unique(data2$resource_detailed)
