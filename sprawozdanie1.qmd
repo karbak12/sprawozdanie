@@ -105,7 +105,7 @@ data <- read_csv2("dane_WIID_2023.csv", show_col_types = FALSE) %>%
 
 ```{r, echo=FALSE, massage=FALSE}
 head(data) 
-unique(data$Kraj)
+unique(data$Region)
 library(dplyr)
 
 # Zliczanie liczby wystąpień dla każdego roku
@@ -115,6 +115,13 @@ najczestszy_rok <- data %>%
   slice_head(n = 30)              # Wybranie wiersza z najczęstszym rokiem
 
 print(najczestszy_rok)
+# Filtracja danych dla Irlandii i Luksemburga w roku 2020
+pkb_data <- data %>%
+  filter(Kraj %in% c( "Moldova") ) %>%  # Filtrujemy po krajach i roku
+  select(Kraj, Rok, PKB)  # Wybieramy tylko interesujące nas kolumny
+
+# Wyświetlanie wyników
+print(pkb_data)
 
 ```
 
@@ -237,6 +244,209 @@ ggplot(data_2020, aes(x = reorder(Kraj, PKB), y = PKB, fill = PKB)) +
   )
 
 ```
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+# Biblioteki
+library(tidyverse)
+
+# Filtracja danych dla krajów
+rich_countries <- c("Luxembourg", "Ireland", "Switzerland", "Norway", "Netherlands", "Denmark", "Austria")
+poor_countries <- c("Moldova", "Ukraine", "Belarus", "Bulgaria","North Macedonia", "Russia","Latvia")
+
+# Dane dla bogatych krajów
+data_rich <- data %>%
+  filter(Kraj %in% rich_countries) %>%
+  group_by(Kraj, Rok) %>%
+  summarise(PKB_avg = mean(PKB, na.rm = TRUE), .groups = "drop")
+
+# Dane dla biednych krajów
+data_poor <- data %>%
+  filter(Kraj %in% poor_countries) %>%
+  group_by(Kraj, Rok) %>%
+  summarise(PKB_avg = mean(PKB, na.rm = TRUE), .groups = "drop")
+
+# Wykres dla bogatych krajów
+plot_rich <- ggplot(data_rich, aes(x = Rok, y = PKB_avg, color = Kraj)) +
+  geom_line(size = 1) +
+  labs(
+    title = "Average Income from 1960-2014 in 'Rich' Countries",
+    x = "Year",
+    y = "GDP per capita"
+  ) +
+  theme_minimal()
+
+# Wykres dla biednych krajów
+plot_poor <- ggplot(data_poor, aes(x = Rok, y = PKB_avg, color = Kraj)) +
+  geom_line(size = 1) +
+  labs(
+    title = "PKB from 1960-2014 in 'Poor' Countries",
+    x = "Year",
+    y = "GDP per capita"
+  ) +
+  theme_minimal()
+
+# Wyświetlenie wykresów obok siebie
+library(patchwork)
+plot_rich 
+plot_poor
+```
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+data_region_year <- data %>%
+  group_by(Region, Rok) %>%
+  summarise(mean_PKB = mean(PKB), .groups = "drop")  # Średni PKB dla każdego roku i regionu
+
+# Tworzenie wykresu regresji
+ggplot(data_region_year, aes(x = Rok, y = mean_PKB, color = Region)) +
+  geom_point(size = 2) +  # Punkty danych
+  geom_smooth(method = "lm", formula = y ~ x, se = FALSE, size = 1) +  # Linie regresji
+  labs(
+    title = "Regresja liniowa PKB w Europie w zależności od regionu na przestrzeni lat",
+    x = "Rok",
+    y = "Średnia wartość PKB (per capita)"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+# Obliczenie średniego PKB dla każdego regionu
+avg_pkb_region <- data %>%
+  filter(Rok == 2000,Region %in% c("Southern Europe", "Western Europe", "Eastern Europe", "Northern Europe")) %>%
+  group_by(Region) %>%
+  summarise(Średni_PKB = mean(PKB, na.rm = TRUE)) %>%
+  arrange(desc(Średni_PKB))  # Sortowanie w porządku malejącym
+
+# Tworzenie wykresu słupkowego
+ggplot(avg_pkb_region, aes(x = reorder(Region, Średni_PKB), y = Średni_PKB, fill = Region)) +
+  geom_bar(stat = "identity") +
+  labs(
+    title = "Średni PKB per capita w regionach Europy w 2000",
+    x = "Region",
+    y = "Średni PKB per capita",
+    fill = "Region"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+# Obliczenie średniego PKB dla każdego regionu
+avg_pkb_region <- data %>%
+  filter(Rok == 2020,Region %in% c("Southern Europe", "Western Europe", "Eastern Europe", "Northern Europe")) %>%
+  group_by(Region) %>%
+  summarise(Średni_PKB = mean(PKB, na.rm = TRUE)) %>%
+  arrange(desc(Średni_PKB))  # Sortowanie w porządku malejącym
+
+# Tworzenie wykresu słupkowego
+ggplot(avg_pkb_region, aes(x = reorder(Region, Średni_PKB), y = Średni_PKB, fill = Region)) +
+  geom_bar(stat = "identity") +
+  labs(
+    title = "Średni PKB per capita w regionach Europy w 2020",
+    x = "Region",
+    y = "Średni PKB per capita",
+    fill = "Region"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+data_2020 <- data %>%
+  filter(Rok == 2020)
+
+# Wykres boxplot porównujący PKB w różnych regionach w 2020 roku
+ggplot(data_2020, aes(x = Region, y = PKB, fill = Region)) +
+  geom_boxplot() +
+  labs(
+    title = "Rozkład PKB w różnych regionach Europy w 2020 roku",
+    x = "Region",
+    y = "PKB"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+
+library(ggsignif)# 1. Grupowanie danych i obliczanie średniego PKB dla regionów
+data_region_year <- data %>%
+  group_by(Region, Rok) %>%
+  summarise(mean_PKB = mean(PKB), .groups = "drop")  # Średni PKB dla każdego roku i regionu
+
+# 2. Testy t-Studenta dla porównań między regionami
+
+# Pobranie unikalnych regionów
+regions <- unique(data$Region)
+
+# Przygotowanie wyników testów t-Studenta dla wszystkich par regionów
+results <- expand.grid(Region1 = regions, Region2 = regions) %>%
+  filter(Region1 != Region2) %>%
+  rowwise() %>%
+  mutate(
+    t_test = list(t.test(
+      data %>% filter(Region == Region1) %>% pull(PKB),
+      data %>% filter(Region == Region2) %>% pull(PKB),
+      alternative = "two.sided",
+      var.equal = FALSE
+    )),
+    p_value = t_test$p.value,
+    statistic = t_test$statistic
+  )
+
+# Dodanie korekty Bonferroniego dla wielokrotnych porównań
+results <- results %>%
+  mutate(p_adjusted = p.adjust(p_value, method = "bonferroni"))
+
+# 3. Wizualizacja - Wykres pudełkowy z oznaczeniem wyników testów t-Studenta
+
+ggplot(data, aes(x = Region, y = PKB, fill = Region)) +
+  geom_boxplot() +
+  geom_signif(
+    comparisons = list(c("Eastern Europe", "Western Europe"), c("Southern Europe", "Northern Europe")),  # Przykłady regionów
+    map_signif_level = TRUE
+  ) +
+  labs(
+    title = "Rozkład PKB w różnych regionach Europy",
+    x = "Region",
+    y = "PKB per capita"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+# 4. Wizualizacja - Wykres słupkowy z średnimi wartościami PKB
+
+ggplot(data_region_year, aes(x = Region, y = mean_PKB, fill = Region)) +
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  geom_text(aes(label = sprintf("%.2f", mean_PKB)), vjust = -0.5) +
+  labs(
+    title = "Średnia wartość PKB per capita w regionach Europy",
+    x = "Region",
+    y = "Średnia wartość PKB"
+  ) +
+  theme_minimal()
+
+# 5. Wyświetlenie tabeli wyników testów t-Studenta
+results %>%
+  select(Region1, Region2, p_value, p_adjusted) %>%
+  arrange(p_value)
+```
+
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+data_2020 <- data %>%
+  filter(Rok == 2000)
+
+# Wykres boxplot porównujący PKB w różnych regionach w 2020 roku
+ggplot(data_2020, aes(x = Region, y = PKB, fill = Region)) +
+  geom_boxplot() +
+  labs(
+    title = "Rozkład PKB w różnych regionach Europy w 2000 roku",
+    x = "Region",
+    y = "PKB"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+```
 
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
@@ -285,7 +495,7 @@ ggplot(world_filtered) +
         axis.ticks = element_blank(),  # Usunięcie ticków osi
         axis.title = element_blank())  # Usunięcie tytułów osi
 
-yes
+
 
 
 ```
@@ -336,7 +546,7 @@ ggplot(world_filtered) +
         axis.ticks = element_blank(),  # Usunięcie ticków osi
         axis.title = element_blank())  # Usunięcie tytułów osi
 
-yes
+
 
 ```
 ## Akapit
