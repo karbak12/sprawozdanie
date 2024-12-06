@@ -170,9 +170,8 @@ print(statystyki_all)
 
 # Analiza danych
 
-## Jaka jest zależność między położeniem geograficznym w Europie a wysokością PKB i wzrostem gospodarczym państw na przestrzeni lat?
+## Jaka jest zależność między położeniem geograficznym w Europie, a wysokością PKB i wzrostem gospodarczym państw na przestrzeni lat?
 
-1\. Jaka jest zależność między położeniem geograficznym w Europie a wysokością PKB i wzrostem gospodarczym państw na przestrzeni lat?
 
 Może te akapity będą odpowiedziami na poszczególne pytania badawcze?
 
@@ -181,6 +180,9 @@ Może te akapity będą odpowiedziami na poszczególne pytania badawcze?
 -   Dla cech ciągłych: Analiza korelacji, testy t-studenta, regresja liniowa.
 
 Interpretacja wyników - Opisać wyniki analizy, odnosząc się do postawionych wcześniej pytań badawczych. Logicznie przedstawić wyniki, które prowadzą do odpowiedzi na pytania badawcze.
+
+
+W poniższyj analizie będziemy starały odpowiedzieć czy instnieje zależność między położeniem geograficznym w Europie, a wysokością PKB i wzrostem gospodarczym państw na przestrzeni lat.
 
 ```{r, echo=FALSE, massage=FALSE}
 # Filtracja danych dla roku 2000
@@ -202,7 +204,7 @@ ggplot(data_2000, aes(x = reorder(Kraj, PKB), y = PKB, fill = Region)) +
     y = "PKB"
   ) +
   theme_minimal() +
-  scale_fill_brewer(palette = "Paired", name = "Region") +  # Kolory dla regionów
+  scale_fill_brewer(palette = "Set1", name = "Region") +  # Kolory dla regionów
   scale_y_continuous(labels = scales::label_number(accuracy = 1)) +
   theme(
     legend.position = "bottom"  # Przeniesienie legendy na dół
@@ -212,6 +214,8 @@ ggplot(data_2000, aes(x = reorder(Kraj, PKB), y = PKB, fill = Region)) +
 
 
 ```
+Na wykresie widnieje 15 krajów z najniższym PKB w roku 2000. Możemy zaobserwować przewagę państw z Europy Wschodniej, które zostały oznaczone kolorem czerwonym oraz z Europy Południowej oznaczone kolorem zielonym. Ukraina, Mołdawia, Białoruś znajdują się w Europie Wschodniej, a ich PKB jest najniższe z całej Europy.
+
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # Filtracja danych dla roku 2000
@@ -231,13 +235,15 @@ ggplot(data_2000, aes(x = reorder(Kraj, PKB), y = PKB, fill = Region)) +
     y = "PKB"
   ) +
   theme_minimal() +
-  scale_fill_brewer(palette = "Paired", name = "Region") +  # Kolory dla regionów
+  scale_fill_brewer(palette = "Set1", name = "Region") +  # Kolory dla regionów
   scale_y_continuous(labels = scales::label_number(accuracy = 1)) +
   theme(
     legend.position = "bottom"  # Przeniesienie legendy na dół
   )
 
 ```
+
+Aż siedem krajów z Europy Wschodniej występuję w rankingu piętnastu krajów w Europie z najwyższym PKB w 2000 roku. Luksemburg jest państwem z najwyższym PKB. Jest ono prawie dwa razy większe od PKB Szwajcarji, które zjamuje drugie miejsce w rankingu. Kraje Europy Północnej (np. Norwegia, Dania, Szwecja, Irlandia) również osiągnęły wysokie PKB,
 
 ```{r, echo=FALSE, massage=FALSE}
 # Filtracja danych dla roku 2020
@@ -260,7 +266,7 @@ ggplot(data_2020, aes(x = reorder(Kraj, PKB), y = PKB, fill = Region)) +
     y = "PKB"
   ) +
   theme_minimal() +
-  scale_fill_brewer(palette = "Paired", name = "Region") +  # Kolory dla regionów
+  scale_fill_brewer(palette = "Set1", name = "Region") +  # Kolory dla regionów
   scale_y_continuous(labels = scales::label_number(accuracy = 1)) +
   theme(
     legend.position = "bottom"  # Przeniesienie legendy na dół
@@ -268,6 +274,8 @@ ggplot(data_2020, aes(x = reorder(Kraj, PKB), y = PKB, fill = Region)) +
 
 
 ```
+W 2020 roku na czele listy krajów z najniższym PKB znalazły się kraje Południowej takie jak Macedonia Północna i Serbia. W porównaniu z rokiem 2000 wystepuję dużo więcej państw z Europy Południowj. Kraje Europy Wschodniej, takie jak Bułgaria, Rosja, Rumunia, wciąż dominują w zestawieniu najniższego PKB, ale zauważalny jest wzrost ich gospodarek w porównaniu do roku 2000.
+
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # Filtracja danych dla roku 2000
@@ -287,13 +295,14 @@ ggplot(data_2020, aes(x = reorder(Kraj, PKB), y = PKB, fill = Region)) +
     y = "PKB"
   ) +
   theme_minimal() +
-  scale_fill_brewer(palette = "Paired", name = "Region") +  # Kolory dla regionów
+  scale_fill_brewer(palette = "Set1", name = "Region") +  # Kolory dla regionów
   scale_y_continuous(labels = scales::label_number(accuracy = 1)) +
   theme(
     legend.position = "bottom"  # Przeniesienie legendy na dół
   )
 
 ```
+W 2020 roku najwyższe PKB nadal posiada Luksemburg co nie zmieniło sie w przeciągu 20 lat. Jednak róznica pomiędzy Luksemburgiem, a np. Iralndią nie jest już tak znaczna. Wciąż występuję dominajcja regionów północnych i zachodnich.
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # Biblioteki
@@ -319,7 +328,7 @@ data_poor <- data %>%
 plot_rich <- ggplot(data_rich, aes(x = Rok, y = PKB_avg, color = Kraj)) +
   geom_line(size = 1) +
   labs(
-    title = "PKB od 1958 do 2022 w krajach z najwyższym PKB",
+    title = "PKB w krajach z najwyższym PKB na przestrzeni lat",
     x = "Rok",
     y = "PKB"
   ) +
@@ -329,7 +338,7 @@ plot_rich <- ggplot(data_rich, aes(x = Rok, y = PKB_avg, color = Kraj)) +
 plot_poor <- ggplot(data_poor, aes(x = Rok, y = PKB_avg, color = Kraj)) +
   geom_line(size = 1) +
   labs(
-    title = "PKB od 1958 do 2022 w krajach z najniższym PKB",
+    title = "PKB w krajach z najniższym PKB na przestrzeni lat",
     x = "Rok",
     y = "PKB"
   ) +
@@ -340,6 +349,13 @@ library(patchwork)
 plot_rich 
 plot_poor
 ```
+Luksemburg i Irlandia odnotowały najszybszy wzrost PKB, szczególnie po 2000 roku. Irlandia osiągnęła gwałtowny wzrost ostatnich dwudziestu latach. Dania, Norwegia, Szwajcaria, Austria, i Holandia charakteryzują się stabilnym, ale mniej dynamicznym wzrostem w porównaniu do Irlandii i Luksemburga. W latach 2008-2009 widoczny jest spadek PKB w większości krajów, co jest efektem globalnego kryzysu finansowego.
+
+Dla krajów takich jak Rosja, Ukraina, Białoruś, Mołdawia czy Łotwa można zaobserwować znaczny spadek PKB w latach 90., co jest związane z rozpadem Związku Radzieckiego. Po roku 2000 widoczny jest wyraźny wzrost PKB we wszystkich analizowanych krajach, co wskazuje na poprawę sytuacji gospodarczej po trudnym okresie transformacji lat 90.
+
+
+
+
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 data_region_year <- data %>%
@@ -358,6 +374,9 @@ ggplot(data_region_year, aes(x = Rok, y = mean_PKB, color = Region)) +
   theme_minimal() +
   theme(legend.position = "bottom")
 ```
+
+Na wykresie zaobserwujemy zróżnicowany poziom PKB między regionami.Wszystkie regiony Europy wykazują wzrost PKB w analizowanym okresie, jednak region zachodni i północny rozwiją się najprężniej. Europa Zachodnia (Western Europe) odznacza się najwyższym poziomem PKB w całym okresie. Europa Wschodnia (Eastern Europe) ma najniższy poziom PKB, co wynika z opóźnienia w rozwoju gospodarczym w porównaniu z resztą regionów.
+
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # Obliczenie średniego PKB dla każdego regionu
@@ -379,6 +398,7 @@ ggplot(avg_pkb_region, aes(x = reorder(Region, Średni_PKB), y = Średni_PKB, fi
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
+Średnia wartość PKB w roku 2000 znacznie rózniła sie między regionami.Europa Zachodnia miała najwyższe średnie PKB spośród wszystkich, za to Europa Wschodnia zanotowała njaniższe.Europa Północna zajmowała drugie miejsce pod względem wielkości PKB, a tuż za nią Europa Południowa.
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # Obliczenie średniego PKB dla każdego regionu
@@ -401,15 +421,18 @@ ggplot(avg_pkb_region, aes(x = reorder(Region, Średni_PKB), y = Średni_PKB, fi
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
+W 2020 roku Europa Zachodnia i Północna pozostają liderami gospodarczymi. Rozwój gospodarczy Europy Wschodniej poskutkował zmniejszaniem się  dysproporcji pomiędzy Europy Południowej. Pomimo postępu, różnice w poziomie PKB wciąż są widoczne choć mniejsze w porównaniu z 2000 rokiem.
+
+
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 data_2020 <- data %>%
-  filter(Rok == 2020)
+  filter(Rok == 2000)
   
 # Wykres boxplot porównujący PKB w różnych regionach w 2020 roku
 ggplot(data_2020, aes(x = Region, y = PKB, fill = Region)) +
   geom_boxplot() +
   labs(
-    title = "Wykres pudełkowy rozkładu PKB w regionach Europy w 2020 roku",
+    title = "Wykres pudełkowy rozkładu PKB w regionach Europy w 2000 roku",
     x = "Region",
     y = "PKB"
   ) +
@@ -417,6 +440,10 @@ ggplot(data_2020, aes(x = Region, y = PKB, fill = Region)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
 ```
 
+Region Europy Zachodniej posiada największą medianę. Następnie Europa Północna, Europa Południowa, Europa Wschodnia. Rozstępy międzykwartylowe wskazują na większe zróżnicowanie wewnątrz Europy Południowej, podczas gdy Europa Wschodnia i Północna są bardziej jednorodne. Wartości odstające w Europie Zachodniej i Północnej pokazują wyjątkowo wysokie PKB w niektórych krajach, podczas gdy w Europie Wschodniej i Południowej odnotowano odstające wartości na dolnym poziomie.
+
+
+to chyba usune
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 
 library(ggsignif)# 1. Grupowanie danych i obliczanie średniego PKB dla regionów
@@ -485,13 +512,13 @@ results %>%
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 data_2020 <- data %>%
-  filter(Rok == 2000)
+  filter(Rok == 2020)
 
 # Wykres boxplot porównujący PKB w różnych regionach w 2020 roku
 ggplot(data_2020, aes(x = Region, y = PKB, fill = Region)) +
   geom_boxplot() +
   labs(
-    title = "Wykres pudełkowy rozkładu PKB w regionach Europy w 2000 roku",
+    title = "Wykres pudełkowy rozkładu PKB w regionach Europy w 2020 roku",
     x = "Region",
     y = "PKB"
   ) +
@@ -499,58 +526,8 @@ ggplot(data_2020, aes(x = Region, y = PKB, fill = Region)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
 ```
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE}
-# Ładowanie niezbędnych bibliotek
-library(rnaturalearth)
-library(sf)
-library(dplyr)
-library(ggplot2)
-library(readr)
-library(stringr)
+Wszystkie regiony Europy odnotowały wzrost mediany PKB w 2020 roku w porównaniu do 2000 roku. Ranking wielkości median pozostaje niezmienny. Rozstępy międzykwartylowe sugerują, że największe różnice w PKB występują w Europie Południowej, a najmniejsze w Europie Wschodniej.Wartości odstające w Europie Zachodniej i Północnej potwierdzają istnienie liderów gospodarczych w tych regionach, podczas gdy w Europie Wschodniej wskazują na kraje zmagające się z trudnościami gospodarczymi.
 
-# Krok 1: Wczytanie danych geograficznych krajów z rnaturalearth
-world <- ne_countries(scale = 50, returnclass = 'sf')
-
-# Krok 3: Lista krajów do wyświetlenia (bez Rosji)
-countries_to_show <- c("Albania", "Austria", "Belarus", "Belgium", "Bulgaria", 
-                       "Croatia", "Czechia", "Denmark", "Estonia", 
-                       "Finland", "France", "Germany", "Greece", "Hungary", "Iceland", 
-                       "Ireland", "Italy", "Latvia", "Lithuania", "Luxembourg", "Malta", 
-                       "Moldova", "Montenegro", "Netherlands", "North Macedonia", 
-                       "Norway", "Poland", "Portugal", "Romania", "Serbia", "Russia",
-                       "Serbia and Montenegro", "Slovakia", "Slovenia", "Soviet Union", 
-                       "Spain", "Sweden", "Switzerland", "Ukraine", "United Kingdom")
-
-# Krok 4: Filtruj dane, aby tylko wybrane kraje były w zbiorze i dla roku 2000
-data_filtered <- data %>%
-  filter(Kraj %in% countries_to_show) %>%
-  filter(Rok == 2020)  # Filtruj dane na rok 2000
-
-# Krok 5: Połącz dane geograficzne z danymi o krajach
-world_filtered <- world %>%
-  filter(name %in% countries_to_show) %>%
-  left_join(data_filtered, by = c("name" = "Kraj"))
-
-# Krok 6: Rysowanie mapy (bez etykiet i bez Rosji)
-ggplot(world_filtered) + 
-  geom_sf(aes(fill = PKB), color = 'black') +  # Kolorowanie krajów na podstawie PKB
-  coord_sf(crs = st_crs(3035),                   # Ustawienie układu współrzędnych
-           xlim = c(2000000, 6200000), 
-           ylim = c(1500000, 5500000)) +         # Zakres widocznej części mapy
-    scale_fill_viridis_c(option = "C", na.value = 'white') +
-    scale_fill_viridis_c(option = "C", na.value = 'white', # Kolor biały dla brakujących danych
-                        name = "Wartość PKB",    # Tytuł legendy
-                        labels = scales::label_comma()) + # Skala kolorów  # Skala kolorów
-  theme_minimal() +  # Minimalistyczny wygląd
-  labs(title = "Mapa PKB w krajach Europy w 2020 roku") +
-  theme(axis.text = element_blank(),   # Usunięcie napisów osi
-        axis.ticks = element_blank(),  # Usunięcie ticków osi
-        axis.title = element_blank())  # Usunięcie tytułów osi
-
-
-
-
-```
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # Ładowanie niezbędnych bibliotek
@@ -590,12 +567,67 @@ ggplot(world_filtered) +
   coord_sf(crs = st_crs(3035),                   # Ustawienie układu współrzędnych
            xlim = c(2000000, 6200000), 
            ylim = c(1500000, 5500000)) +         # Zakres widocznej części mapy
+    scale_fill_viridis_c(option = "C", na.value = 'white') +
+    scale_fill_viridis_c(option = "C", na.value = 'white', # Kolor biały dla brakujących danych
+                        name = "Wartość PKB",    # Tytuł legendy
+                        labels = scales::label_comma()) + # Skala kolorów  # Skala kolorów
+  theme_minimal() +  # Minimalistyczny wygląd
+  labs(title = "Mapa PKB w krajach Europy w 2000 roku") +
+  theme(axis.text = element_blank(),   # Usunięcie napisów osi
+        axis.ticks = element_blank(),  # Usunięcie ticków osi
+        axis.title = element_blank())  # Usunięcie tytułów osi
+
+
+
+
+```
+Mapa PKB z 2000 roku zróżnicowanie gospodarcze w Europie w 2000 roku było wyraźnie widoczne między bogatą Europą Zachodnią i Północną, umiarkowanie rozwiniętą Europą Południową oraz rozwijającą się Europą Wschodnią.
+
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+# Ładowanie niezbędnych bibliotek
+library(rnaturalearth)
+library(sf)
+library(dplyr)
+library(ggplot2)
+library(readr)
+library(stringr)
+
+# Krok 1: Wczytanie danych geograficznych krajów z rnaturalearth
+world <- ne_countries(scale = 50, returnclass = 'sf')
+
+# Krok 3: Lista krajów do wyświetlenia (bez Rosji)
+countries_to_show <- c("Albania", "Austria", "Belarus", "Belgium", "Bulgaria", 
+                       "Croatia", "Czechia", "Denmark", "Estonia", 
+                       "Finland", "France", "Germany", "Greece", "Hungary", "Iceland", 
+                       "Ireland", "Italy", "Latvia", "Lithuania", "Luxembourg", "Malta", 
+                       "Moldova", "Montenegro", "Netherlands", "North Macedonia", 
+                       "Norway", "Poland", "Portugal", "Romania", "Serbia", "Russia",
+                       "Serbia and Montenegro", "Slovakia", "Slovenia", "Soviet Union", 
+                       "Spain", "Sweden", "Switzerland", "Ukraine", "United Kingdom")
+
+# Krok 4: Filtruj dane, aby tylko wybrane kraje były w zbiorze i dla roku 2000
+data_filtered <- data %>%
+  filter(Kraj %in% countries_to_show) %>%
+  filter(Rok == 2020)  # Filtruj dane na rok 2000
+
+# Krok 5: Połącz dane geograficzne z danymi o krajach
+world_filtered <- world %>%
+  filter(name %in% countries_to_show) %>%
+  left_join(data_filtered, by = c("name" = "Kraj"))
+
+# Krok 6: Rysowanie mapy (bez etykiet i bez Rosji)
+ggplot(world_filtered) + 
+  geom_sf(aes(fill = PKB), color = 'black') +  # Kolorowanie krajów na podstawie PKB
+  coord_sf(crs = st_crs(3035),                   # Ustawienie układu współrzędnych
+           xlim = c(2000000, 6200000), 
+           ylim = c(1500000, 5500000)) +         # Zakres widocznej części mapy
   scale_fill_viridis_c(option = "C", na.value = 'white') +
     scale_fill_viridis_c(option = "C", na.value = 'white', # Kolor biały dla brakujących danych
                         name = "Wartość PKB",    # Tytuł legendy
                         labels = scales::label_comma()) + # Skala kolorów
   theme_minimal() +  # Minimalistyczny wygląd
-  labs(title = "Mapa PKB w krajach Europy w 2000 roku",
+  labs(title = "Mapa PKB w krajach Europy w 2020 roku",
        subtitle = "PKB") +
   theme(axis.text = element_blank(),   # Usunięcie napisów osi
         axis.ticks = element_blank(),  # Usunięcie ticków osi
@@ -604,6 +636,8 @@ ggplot(world_filtered) +
 
 
 ```
+
+Mapa PKB w krajach Europy w 2020 roku ukazuje istotne zróżnicowanie gospodarcze między regionami. Europa Zachodnia i Północna utrzymały najwyższe wartości PKB, wskazując na stabilny rozwój. Europa Południowa odnotowała umiarkowany wzros, a Europa Wschodnia zanotowała największy względny wzrost, choć poziom PKB nadal pozostaje najniższy. W porównaniu do 2000 roku we wszystkich regionach widoczny jest wyraźny wzrost gospodarczy, szczególnie w Europie Wschodniej.
 
 ## Akapit
 
