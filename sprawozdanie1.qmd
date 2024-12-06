@@ -499,14 +499,15 @@ ggplot(data_2020, aes(x = Region, y = PKB, fill = Region)) +
 ```
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
-# Krok 1: Wczytanie danych geograficznych krajów z rnaturalearth
-library(ggplot2)
+# Ładowanie niezbędnych bibliotek
+library(rnaturalearth)
 library(sf)
 library(dplyr)
-library(viridis)
-library(rnaturalearth)
+library(ggplot2)
+library(readr)
+library(stringr)
 
-# Wczytanie danych geograficznych
+# Krok 1: Wczytanie danych geograficznych krajów z rnaturalearth
 world <- ne_countries(scale = 50, returnclass = 'sf')
 
 # Krok 3: Lista krajów do wyświetlenia (bez Rosji)
@@ -519,17 +520,28 @@ countries_to_show <- c("Albania", "Austria", "Belarus", "Belgium", "Bulgaria",
                        "Serbia and Montenegro", "Slovakia", "Slovenia", "Soviet Union", 
                        "Spain", "Sweden", "Switzerland", "Ukraine", "United Kingdom")
 
+# Krok 4: Filtruj dane, aby tylko wybrane kraje były w zbiorze i dla roku 2000
+data_filtered <- data %>%
+  filter(Kraj %in% countries_to_show) %>%
+  filter(Rok == 2020)  # Filtruj dane na rok 2000
+
+# Krok 5: Połącz dane geograficzne z danymi o krajach
+world_filtered <- world %>%
+  filter(name %in% countries_to_show) %>%
+  left_join(data_filtered, by = c("name" = "Kraj"))
+
+# Krok 6: Rysowanie mapy (bez etykiet i bez Rosji)
 ggplot(world_filtered) + 
   geom_sf(aes(fill = PKB), color = 'black') +  # Kolorowanie krajów na podstawie PKB
   coord_sf(crs = st_crs(3035),                   # Ustawienie układu współrzędnych
            xlim = c(2000000, 6200000), 
            ylim = c(1500000, 5500000)) +         # Zakres widocznej części mapy
-  scale_fill_viridis_c(option = "C", na.value = 'white') +
+    scale_fill_viridis_c(option = "C", na.value = 'white') +
     scale_fill_viridis_c(option = "C", na.value = 'white', # Kolor biały dla brakujących danych
                         name = "Wartość PKB",    # Tytuł legendy
-                        labels = scales::label_comma()) + # Skala kolorów
+                        labels = scales::label_comma()) + # Skala kolorów  # Skala kolorów
   theme_minimal() +  # Minimalistyczny wygląd
-  labs(title = "Mapa PKB w krajach Europy w 2020 roku") +
+  labs(title = "Mapa PKB w krajach Europy w 2020 roku)") +
   theme(axis.text = element_blank(),   # Usunięcie napisów osi
         axis.ticks = element_blank(),  # Usunięcie ticków osi
         axis.title = element_blank())  # Usunięcie tytułów osi
