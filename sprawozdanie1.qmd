@@ -192,16 +192,20 @@ data_2000 <- data %>%
 # Tworzenie wykresu
 library(ggplot2)
 
-ggplot(data_2000, aes(x = reorder(Kraj, PKB), y = PKB, fill = PKB)) +
+ggplot(data_2000, aes(x = reorder(Kraj, PKB), y = PKB, fill = Region)) +
   geom_bar(stat = "identity", color = "black") +
   coord_flip() +
   labs(
-    title = "The 15 Countries with Lowest GDP in Europe in 2000",
-    x = "Country",
-    y = "GDP (Per Capita)"
+    title = "15 krajów w Europie z najniższym PKB w 2000 roku",
+    x = "Kraj",
+    y = "PKB na mieszkańca (USD)"
   ) +
   theme_minimal() +
-  scale_fill_gradient(low = "lightblue", high = "darkblue",labels = scales::label_number(accuracy = 1))
+  scale_fill_brewer(palette = "Paired", name = "Region") +  # Kolory dla regionów
+  scale_y_continuous(labels = scales::label_number(accuracy = 1)) +
+  theme(
+    legend.position = "bottom"  # Przeniesienie legendy na dół
+  )
 
 
 
@@ -217,20 +221,19 @@ data_2000 <- data %>%
   slice_head(n = 15)               # Wybór 15 krajów z najwyższym PKB
 
 # Tworzenie wykresu
-ggplot(data_2000, aes(x = reorder(Kraj, PKB), y = PKB, fill = PKB)) +
+ggplot(data_2000, aes(x = reorder(Kraj, PKB), y = PKB, fill = Region)) +
   geom_bar(stat = "identity", color = "black") +
   coord_flip() +
   labs(
-    title = "The 15 Countries with Highest GDP in Europe in 2000",
-    x = "Country",
-    y = "GDP (Per Capita)"
+    title = "15 krajów w Europie z najwyższym PKB w 2000 roku",
+    x = "Kraj",
+    y = "PKB na mieszkańca (USD)"
   ) +
   theme_minimal() +
-  scale_fill_gradient(
-    low = "lightblue", 
-    high = "darkblue",
-    name = "GDP (in USD)",
-    labels = scales::label_number(accuracy = 1)   # Formatowanie wartości w legendzie
+  scale_fill_brewer(palette = "Paired", name = "Region") +  # Kolory dla regionów
+  scale_y_continuous(labels = scales::label_number(accuracy = 1)) +
+  theme(
+    legend.position = "bottom"  # Przeniesienie legendy na dół
   )
 
 ```
@@ -246,18 +249,21 @@ data_2020 <- data %>%
 # Tworzenie wykresu
 library(ggplot2)
 
-ggplot(data_2020, aes(x = reorder(Kraj, PKB), y = PKB, fill = PKB)) +
+
+ggplot(data_2020, aes(x = reorder(Kraj, PKB), y = PKB, fill = Region)) +
   geom_bar(stat = "identity", color = "black") +
   coord_flip() +
   labs(
-    title = "The 15 Countries with Lowest GDP in Europe in 2020",
-    x = "Country",
-    y = "GDP (Per Capita)"
+    title = "15 krajów w Europie z najniższym PKB w 2020 roku",
+    x = "Kraj",
+    y = "PKB na mieszkańca (USD)"
   ) +
   theme_minimal() +
-  scale_fill_gradient(low = "lightblue", high = "darkblue",labels = scales::label_number(accuracy = 1))
-
-
+  scale_fill_brewer(palette = "Paired", name = "Region") +  # Kolory dla regionów
+  scale_y_continuous(labels = scales::label_number(accuracy = 1)) +
+  theme(
+    legend.position = "bottom"  # Przeniesienie legendy na dół
+  )
 
 
 ```
@@ -271,20 +277,19 @@ data_2020 <- data %>%
   slice_head(n = 15)               # Wybór 15 krajów z najwyższym PKB
 
 # Tworzenie wykresu
-ggplot(data_2020, aes(x = reorder(Kraj, PKB), y = PKB, fill = PKB)) +
+ggplot(data_2020, aes(x = reorder(Kraj, PKB), y = PKB, fill = Region)) +
   geom_bar(stat = "identity", color = "black") +
   coord_flip() +
   labs(
-    title = "The 15 Countries with Highest GDP in Europe in 2000",
-    x = "Country",
-    y = "GDP (Per Capita)"
+    title = "15 krajów w Europie z najwyższym PKB w 2020 roku",
+    x = "Kraj",
+    y = "PKB na mieszkańca (USD)"
   ) +
   theme_minimal() +
-  scale_fill_gradient(
-    low = "lightblue", 
-    high = "darkblue",
-    name = "GDP (in USD)",
-    labels = scales::label_number(accuracy = 1)   # Formatowanie wartości w legendzie
+  scale_fill_brewer(palette = "Paired", name = "Region") +  # Kolory dla regionów
+  scale_y_continuous(labels = scales::label_number(accuracy = 1)) +
+  theme(
+    legend.position = "bottom"  # Przeniesienie legendy na dół
   )
 
 ```
@@ -313,9 +318,9 @@ data_poor <- data %>%
 plot_rich <- ggplot(data_rich, aes(x = Rok, y = PKB_avg, color = Kraj)) +
   geom_line(size = 1) +
   labs(
-    title = "Average Income from 1960-2014 in 'Rich' Countries",
-    x = "Year",
-    y = "GDP per capita"
+    title = "PKB od 1958 do 2022 w krajach z najwyższym PKB",
+    x = "Rok",
+    y = "PKB"
   ) +
   theme_minimal()
 
@@ -323,9 +328,9 @@ plot_rich <- ggplot(data_rich, aes(x = Rok, y = PKB_avg, color = Kraj)) +
 plot_poor <- ggplot(data_poor, aes(x = Rok, y = PKB_avg, color = Kraj)) +
   geom_line(size = 1) +
   labs(
-    title = "PKB from 1960-2014 in 'Poor' Countries",
-    x = "Year",
-    y = "GDP per capita"
+    title = "PKB od 1958 do 2022 w krajach z najniższym PKB",
+    x = "Rok",
+    y = "PKB"
   ) +
   theme_minimal()
 
@@ -345,9 +350,9 @@ ggplot(data_region_year, aes(x = Rok, y = mean_PKB, color = Region)) +
   geom_point(size = 2) +  # Punkty danych
   geom_smooth(method = "lm", formula = y ~ x, se = FALSE, size = 1) +  # Linie regresji
   labs(
-    title = "Regresja liniowa PKB w Europie w zależności od regionu na przestrzeni lat",
+    title = "Regresja liniowa PKB w Europie w zależności od regionu od 1958 do 2022",
     x = "Rok",
-    y = "Średnia wartość PKB (per capita)"
+    y = "Wartość PKB"
   ) +
   theme_minimal() +
   theme(legend.position = "bottom")
@@ -365,9 +370,9 @@ avg_pkb_region <- data %>%
 ggplot(avg_pkb_region, aes(x = reorder(Region, Średni_PKB), y = Średni_PKB, fill = Region)) +
   geom_bar(stat = "identity") +
   labs(
-    title = "Średni PKB per capita w regionach Europy w 2000",
+    title = "Średnia wartość PKB w regionach Europy w 2000",
     x = "Region",
-    y = "Średni PKB per capita",
+    y = "PKB",
     fill = "Region"
   ) +
   theme_minimal() +
@@ -386,9 +391,9 @@ avg_pkb_region <- data %>%
 ggplot(avg_pkb_region, aes(x = reorder(Region, Średni_PKB), y = Średni_PKB, fill = Region)) +
   geom_bar(stat = "identity") +
   labs(
-    title = "Średni PKB per capita w regionach Europy w 2020",
+    title = "Średnia wartość PKB w regionach Europy w 2020",
     x = "Region",
-    y = "Średni PKB per capita",
+    y = "PKB",
     fill = "Region"
   ) +
   theme_minimal() +
@@ -403,7 +408,7 @@ data_2020 <- data %>%
 ggplot(data_2020, aes(x = Region, y = PKB, fill = Region)) +
   geom_boxplot() +
   labs(
-    title = "Rozkład PKB w różnych regionach Europy w 2020 roku",
+    title = "Wykres pudełkowy rozkładu PKB w regionach Europy w 2020 roku",
     x = "Region",
     y = "PKB"
   ) +
@@ -485,7 +490,7 @@ data_2020 <- data %>%
 ggplot(data_2020, aes(x = Region, y = PKB, fill = Region)) +
   geom_boxplot() +
   labs(
-    title = "Rozkład PKB w różnych regionach Europy w 2000 roku",
+    title = "Wykres pudełkowy rozkładu PKB w regionach Europy w 2000 roku",
     x = "Region",
     y = "PKB"
   ) +
@@ -521,11 +526,10 @@ ggplot(world_filtered) +
            ylim = c(1500000, 5500000)) +         # Zakres widocznej części mapy
   scale_fill_viridis_c(option = "C", na.value = 'white') +
     scale_fill_viridis_c(option = "C", na.value = 'white', # Kolor biały dla brakujących danych
-                        name = "PKB per capita",    # Tytuł legendy
+                        name = "Wartość PKB",    # Tytuł legendy
                         labels = scales::label_comma()) + # Skala kolorów
   theme_minimal() +  # Minimalistyczny wygląd
-  labs(title = "Mapa PKB na świecie (Wybrane kraje, rok 2020)",
-       subtitle = "PKB per capita w 2020 roku") +
+  labs(title = "Mapa PKB w krajach Europy w 2020 roku") +
   theme(axis.text = element_blank(),   # Usunięcie napisów osi
         axis.ticks = element_blank(),  # Usunięcie ticków osi
         axis.title = element_blank())  # Usunięcie tytułów osi
@@ -575,11 +579,11 @@ ggplot(world_filtered) +
            ylim = c(1500000, 5500000)) +         # Zakres widocznej części mapy
   scale_fill_viridis_c(option = "C", na.value = 'white') +
     scale_fill_viridis_c(option = "C", na.value = 'white', # Kolor biały dla brakujących danych
-                        name = "PKB per capita",    # Tytuł legendy
+                        name = "Wartość PKB",    # Tytuł legendy
                         labels = scales::label_comma()) + # Skala kolorów
   theme_minimal() +  # Minimalistyczny wygląd
-  labs(title = "Mapa PKB na świecie (Wybrane kraje, rok 2000)",
-       subtitle = "PKB per capita w 2000 roku") +
+  labs(title = "Mapa PKB w krajach Europy w 2000 roku)",
+       subtitle = "PKB") +
   theme(axis.text = element_blank(),   # Usunięcie napisów osi
         axis.ticks = element_blank(),  # Usunięcie ticków osi
         axis.title = element_blank())  # Usunięcie tytułów osi
