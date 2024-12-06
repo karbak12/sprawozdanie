@@ -84,6 +84,7 @@ library(dplyr)
 library(ggplot2)
 library(readr)
 library(stringr)
+library(broom)
 ```
 
 ```{r, echo=FALSE, massage=FALSE}
@@ -632,8 +633,12 @@ ggplot(world_filtered) +
 Mapa PKB w krajach Europy w 2020 roku ukazuje istotne zróżnicowanie gospodarcze między regionami. Europa Zachodnia i Północna utrzymały najwyższe wartości PKB, wskazując na stabilny rozwój. Europa Południowa odnotowała umiarkowany wzros, a Europa Wschodnia zanotowała największy względny wzrost, choć poziom PKB nadal pozostaje najniższy. W porównaniu do 2000 roku we wszystkich regionach widoczny jest wyraźny wzrost gospodarczy, szczególnie w Europie Wschodniej.
 
 ## Czy dołączenie do Unii Europejskiej miało wpływ na zmianę PKB państw członkowskich?
+!!!!!!!!!!!!!!UWAGA!!!!!!!!!!!!!!!!!!!!!!!
 
--   Zestaw dane krajów UE z krajami, które nie przystąpiły do Unii (np. Norwegia, Szwajcaria, kraje Bałkanów Zachodnich). Zastosuj technikę różnic w różnicach (Difference-in-Differences), aby porównać zmiany PKB między krajami UE i kontrolną grupą państw spoza UE.
+-  Dodać Zestaw dane krajów UE z krajami, które nie przystąpiły do Unii (np. Norwegia, Szwajcaria, kraje Bałkanów Zachodnich). Zastosuj technikę różnic w różnicach (Difference-in-Differences), aby porównać zmiany PKB między krajami UE i kontrolną grupą państw spoza UE.
+- Dodać komentarze dla późniejszych danych
+- Zwrócić uwagę na fakt, że w 2008 r był crash + fakt ze bulgaria czy tam rumunia ma za malo danych
+
 
 Unia Europejska powstała 1 listopada 1993 roku. Od lat odgrywa ona kluczową rolę w rozwoju państw członkowskich. W niniejszym sprawozdaniu zajmiemy się czterema rozszerzeniami Unii Europejskiej, z lat 1995, 2004, 2007 i 2013. Zbadamy czy w obrębie 10 lat od przystąpienia do Unii Europejskiej dane państwa na tym skorzystały - w sensie miary rozwoju gospodarczego, jakim jest produkt krajowy brutto.
 
@@ -754,12 +759,7 @@ Odchylenie standardowe tempa wzrostu będzie wskazywało na stabilność wzrostu
 
 W poniższej tabeli znajdują się wyniki t-testu porównania średnich PKB przed i po 1995 roku na poziomie ufności 95%.
 
-```{r}
-library(dplyr)  # Jeśli tylko dplyr
-# lub
-library(tidyverse)  # Jeśli używasz całego zestawu tidyverse
-library(broom)  # Ładowanie pakietu broom
-
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # t-test porównania średnich PKB przed i po 1995 roku
 t_test_95 <- data_ue_95 %>%
   group_by(Kraj) %>%
@@ -890,7 +890,7 @@ KOmentarz
 
 W poniższej tabeli znajdują się wyniki t-testu porównania średnich PKB przed i po 2004 roku na poziomie ufności 95%.
 
-```{r}
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 
 # t-test porównania średnich PKB przed i po 
 t_test_04 <- data_ue_04 %>%
@@ -1009,7 +1009,7 @@ komentarz
 
 W poniższej tabeli znajdują się wyniki t-testu porównania średnich PKB przed i po 1995 roku na poziomie ufności 95%.
 
-```{r}
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 library(dplyr)  # Jeśli tylko dplyr
 # lub
 library(tidyverse)  # Jeśli używasz całego zestawu tidyverse
