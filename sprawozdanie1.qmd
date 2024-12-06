@@ -105,23 +105,66 @@ data <- read_csv2("dane_WIID_2023.csv", show_col_types = FALSE) %>%
 
 ```{r, echo=FALSE, massage=FALSE}
 head(data) 
-unique(data$Region)
-library(dplyr)
 
-# Zliczanie liczby wystąpień dla każdego roku
-najczestszy_rok <- data %>%
-  count(Rok) %>%                 # Zliczanie wystąpień dla każdej wartości w kolumnie Rok
-  arrange(desc(n)) %>%           # Sortowanie według liczby wystąpień (malejąco)
-  slice_head(n = 30)              # Wybranie wiersza z najczęstszym rokiem
 
-print(najczestszy_rok)
-# Filtracja danych dla Irlandii i Luksemburga w roku 2020
-pkb_data <- data %>%
-  filter(Kraj %in% c( "Moldova") ) %>%  # Filtrujemy po krajach i roku
-  select(Kraj, Rok, PKB)  # Wybieramy tylko interesujące nas kolumny
+```
+```{r, echo=FALSE, massage=FALSE}
+# Ładowanie niezbędnych pakietów
+library(tidyverse)
+library(e1071)  # Pakiet dla skośności i kurtozy
+library(scales)  # Pakiet dla lepszego formatowania liczb
 
-# Wyświetlanie wyników
-print(pkb_data)
+# Obliczanie statystyk opisowych
+statystyki_all <- data %>%
+  summarise(
+    # Statystyki dla PKB
+    Średnia_PKB = mean(PKB, na.rm = TRUE),
+    Mediana_PKB = median(PKB, na.rm = TRUE),
+    Odchylenie_standardowe_PKB = sd(PKB, na.rm = TRUE),
+    Min_PKB = min(PKB, na.rm = TRUE),
+    Max_PKB = max(PKB, na.rm = TRUE),
+    Kwartyla_1_PKB = quantile(PKB, 0.25, na.rm = TRUE),
+    Kwartyla_3_PKB = quantile(PKB, 0.75, na.rm = TRUE),
+    IQR_PKB = IQR(PKB, na.rm = TRUE),
+    Skala_PKB = diff(range(PKB, na.rm = TRUE)),
+    Skośność_PKB = skewness(PKB, na.rm = TRUE),
+    Kurtosis_PKB = kurtosis(PKB, na.rm = TRUE),
+    
+    # Statystyki dla Roku
+    Średnia_Rok = mean(Rok, na.rm = TRUE),
+    Mediana_Rok = median(Rok, na.rm = TRUE),
+    Odchylenie_standardowe_Rok = sd(Rok, na.rm = TRUE),
+    Min_Rok = min(Rok, na.rm = TRUE),
+    Max_Rok = max(Rok, na.rm = TRUE),
+    Kwartyla_1_Rok = quantile(Rok, 0.25, na.rm = TRUE),
+    Kwartyla_3_Rok = quantile(Rok, 0.75, na.rm = TRUE),
+    IQR_Rok = IQR(Rok, na.rm = TRUE),
+    Skala_Rok = diff(range(Rok, na.rm = TRUE)),
+    Skośność_Rok = skewness(Rok, na.rm = TRUE),
+    Kurtosis_Rok = kurtosis(Rok, na.rm = TRUE),
+    
+    # Statystyki dla Gini
+    Średnia_G = mean(G, na.rm = TRUE),
+    Mediana_G = median(G, na.rm = TRUE),
+    Odchylenie_standardowe_G = sd(G, na.rm = TRUE),
+    Min_G = min(G, na.rm = TRUE),
+    Max_G = max(G, na.rm = TRUE),
+    Kwartyla_1_G = quantile(G, 0.25, na.rm = TRUE),
+    Kwartyla_3_G = quantile(G, 0.75, na.rm = TRUE),
+    IQR_G = IQR(G, na.rm = TRUE),
+    Skala_G = diff(range(G, na.rm = TRUE)),
+    Skośność_G = skewness(G, na.rm = TRUE),
+    Kurtosis_G = kurtosis(G, na.rm = TRUE)
+  ) %>%
+  pivot_longer(cols = everything(), 
+               names_to = c("Statystyka", "Zmienna"), 
+               names_pattern = "(.*)_(.*)", 
+               values_to = "Wartość") %>%
+  pivot_wider(names_from = "Zmienna", values_from = "Wartość") %>%
+  mutate(across(c(PKB, Rok, G), ~ label_number(accuracy = 1)(.)))
+
+# Wyświetlenie wyników w formie tabeli
+print(statystyki_all)
 
 ```
 
@@ -413,17 +456,16 @@ ggplot(data, aes(x = Region, y = PKB, fill = Region)) +
   theme_minimal() +
   theme(legend.position = "none")
 
-# 4. Wizualizacja - Wykres słupkowy z średnimi wartościami PKB
-
 ggplot(data_region_year, aes(x = Region, y = mean_PKB, fill = Region)) +
   geom_bar(stat = "identity", show.legend = FALSE) +
-  geom_text(aes(label = sprintf("%.2f", mean_PKB)), vjust = -0.5) +
+   
   labs(
     title = "Średnia wartość PKB per capita w regionach Europy",
     x = "Region",
     y = "Średnia wartość PKB"
   ) +
   theme_minimal()
+
 
 # 5. Wyświetlenie tabeli wyników testów t-Studenta
 results %>%
