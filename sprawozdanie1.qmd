@@ -70,8 +70,6 @@ Z bazy danych WIID będziemy w niniejszym raporcie skupiać się na analizie dan
 
 Po przygotowaniu otrzymałyśmy zbiór około 13 tysięcy wartości w 9 kolumnach. Prezentuje się on następująco:
 
-
-
 ```{r, echo=FALSE, massage=FALSE}
 #| echo: false
 #| warning: false
@@ -108,6 +106,7 @@ head(data)
 
 
 ```
+
 ```{r, echo=FALSE, massage=FALSE}
 # Ładowanie niezbędnych pakietów
 library(tidyverse)
@@ -170,9 +169,9 @@ print(statystyki_all)
 
 # Analiza danych
 
-## Akapit
+## Jaka jest zależność między położeniem geograficznym w Europie a wysokością PKB i wzrostem gospodarczym państw na przestrzeni lat?
 
-1\. Czy jest zależność między położeniem geograficznym w Europie a zamożnością?
+1\. Jaka jest zależność między położeniem geograficznym w Europie a wysokością PKB i wzrostem gospodarczym państw na przestrzeni lat?
 
 Może te akapity będą odpowiedziami na poszczególne pytania badawcze?
 
@@ -208,6 +207,7 @@ ggplot(data_2000, aes(x = reorder(Kraj, PKB), y = PKB, fill = PKB)) +
 
 
 ```
+
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # Filtracja danych dla roku 2000
 data_2000 <- data %>%
@@ -261,6 +261,7 @@ ggplot(data_2020, aes(x = reorder(Kraj, PKB), y = PKB, fill = PKB)) +
 
 
 ```
+
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # Filtracja danych dla roku 2000
 data_2020 <- data %>%
@@ -287,6 +288,7 @@ ggplot(data_2020, aes(x = reorder(Kraj, PKB), y = PKB, fill = PKB)) +
   )
 
 ```
+
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # Biblioteki
 library(tidyverse)
@@ -332,6 +334,7 @@ library(patchwork)
 plot_rich 
 plot_poor
 ```
+
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 data_region_year <- data %>%
   group_by(Region, Rok) %>%
@@ -349,7 +352,6 @@ ggplot(data_region_year, aes(x = Rok, y = mean_PKB, color = Region)) +
   theme_minimal() +
   theme(legend.position = "bottom")
 ```
-
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # Obliczenie średniego PKB dla każdego regionu
@@ -372,7 +374,6 @@ ggplot(avg_pkb_region, aes(x = reorder(Region, Średni_PKB), y = Średni_PKB, fi
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # Obliczenie średniego PKB dla każdego regionu
 avg_pkb_region <- data %>%
@@ -393,10 +394,11 @@ ggplot(avg_pkb_region, aes(x = reorder(Region, Średni_PKB), y = Średni_PKB, fi
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
+
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 data_2020 <- data %>%
   filter(Rok == 2020)
-
+  
 # Wykres boxplot porównujący PKB w różnych regionach w 2020 roku
 ggplot(data_2020, aes(x = Region, y = PKB, fill = Region)) +
   geom_boxplot() +
@@ -471,8 +473,9 @@ ggplot(data_region_year, aes(x = Region, y = mean_PKB, fill = Region)) +
 results %>%
   select(Region1, Region2, p_value, p_adjusted) %>%
   arrange(p_value)
-```
 
+
+```
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 data_2020 <- data %>%
@@ -490,17 +493,15 @@ ggplot(data_2020, aes(x = Region, y = PKB, fill = Region)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
 ```
 
-
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
-# Ładowanie niezbędnych bibliotek
-library(rnaturalearth)
+# Krok 1: Wczytanie danych geograficznych krajów z rnaturalearth
+library(ggplot2)
 library(sf)
 library(dplyr)
-library(ggplot2)
-library(readr)
-library(stringr)
+library(viridis)
+library(rnaturalearth)
 
-# Krok 1: Wczytanie danych geograficznych krajów z rnaturalearth
+# Wczytanie danych geograficznych
 world <- ne_countries(scale = 50, returnclass = 'sf')
 
 # Krok 3: Lista krajów do wyświetlenia (bez Rosji)
@@ -513,23 +514,15 @@ countries_to_show <- c("Albania", "Austria", "Belarus", "Belgium", "Bulgaria",
                        "Serbia and Montenegro", "Slovakia", "Slovenia", "Soviet Union", 
                        "Spain", "Sweden", "Switzerland", "Ukraine", "United Kingdom")
 
-# Krok 4: Filtruj dane, aby tylko wybrane kraje były w zbiorze i dla roku 2000
-data_filtered <- data %>%
-  filter(Kraj %in% countries_to_show) %>%
-  filter(Rok == 2020)  # Filtruj dane na rok 2000
-
-# Krok 5: Połącz dane geograficzne z danymi o krajach
-world_filtered <- world %>%
-  filter(name %in% countries_to_show) %>%
-  left_join(data_filtered, by = c("name" = "Kraj"))
-
-# Krok 6: Rysowanie mapy (bez etykiet i bez Rosji)
 ggplot(world_filtered) + 
   geom_sf(aes(fill = PKB), color = 'black') +  # Kolorowanie krajów na podstawie PKB
   coord_sf(crs = st_crs(3035),                   # Ustawienie układu współrzędnych
            xlim = c(2000000, 6200000), 
            ylim = c(1500000, 5500000)) +         # Zakres widocznej części mapy
-  scale_fill_viridis_c(option = "C", na.value = 'white') +  # Skala kolorów
+  scale_fill_viridis_c(option = "C", na.value = 'white') +
+    scale_fill_viridis_c(option = "C", na.value = 'white', # Kolor biały dla brakujących danych
+                        name = "PKB per capita",    # Tytuł legendy
+                        labels = scales::label_comma()) + # Skala kolorów
   theme_minimal() +  # Minimalistyczny wygląd
   labs(title = "Mapa PKB na świecie (Wybrane kraje, rok 2020)",
        subtitle = "PKB per capita w 2020 roku") +
@@ -580,7 +573,10 @@ ggplot(world_filtered) +
   coord_sf(crs = st_crs(3035),                   # Ustawienie układu współrzędnych
            xlim = c(2000000, 6200000), 
            ylim = c(1500000, 5500000)) +         # Zakres widocznej części mapy
-  scale_fill_viridis_c(option = "C", na.value = 'white') +  # Skala kolorów
+  scale_fill_viridis_c(option = "C", na.value = 'white') +
+    scale_fill_viridis_c(option = "C", na.value = 'white', # Kolor biały dla brakujących danych
+                        name = "PKB per capita",    # Tytuł legendy
+                        labels = scales::label_comma()) + # Skala kolorów
   theme_minimal() +  # Minimalistyczny wygląd
   labs(title = "Mapa PKB na świecie (Wybrane kraje, rok 2000)",
        subtitle = "PKB per capita w 2000 roku") +
@@ -591,11 +587,10 @@ ggplot(world_filtered) +
 
 
 ```
+
 ## Akapit
 
 2\. Czy dołączenie do UE miało wpływ na zmianę GDP?
-
-
 
 ## Akapit
 
