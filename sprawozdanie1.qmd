@@ -71,23 +71,32 @@ Z bazy danych WIID będziemy w niniejszym raporcie skupiać się na analizie dan
 
 Po przygotowaniu otrzymałyśmy zbiór około 13 tysięcy wartości w 9 kolumnach. Prezentuje się on następująco:
 
+<<<<<<< HEAD
+=======
 ```{r, echo=FALSE, massage=FALSE}
-#| echo: false
-#| warning: false
-library(tidyverse)
+# Ładowanie niezbędnych pakietów
+
+library(tidyverse) # Pakiet do wczytania i czyszczenia danych
+library(e1071)  # Pakiet dla skośności i kurtozy
+library(scales)  # Pakiet dla lepszego formatowania liczb
+```
+
+>>>>>>> Small update
+```{r, echo=FALSE, massage=FALSE}
+# Oczyszczanie danych
 
 data <- read_csv2("dane_WIID_2023.csv", show_col_types = FALSE) %>%
   filter(region_un == "Europe") %>%
   select(country, c3, year, gini, resource_detailed, scale_detailed, region_un_sub, eu, gdp) %>%
   mutate(across(c(country, c3, resource_detailed, scale_detailed, region_un_sub, eu), as.factor)) %>%
   mutate(across(c(year, gini), as.numeric)) %>%
+  mutate(
+    gdp = str_remove_all(gdp, " "),
+    gdp = as.numeric(gdp)
+  ) %>%
   filter(resource_detailed != "Consumption") %>%
   filter(if_all(everything(), ~ !is.na(.))) %>%
   filter(scale_detailed == "Per capita") %>%
-   mutate(
-    gdp = str_remove_all(gdp, " "), # Remove spaces from PKB (gdp)
-    gdp = as.numeric(gdp)          # Convert PKB (gdp) to numeric
-  ) %>%
   rename(
     Kraj = country,
     Skrót = c3,
@@ -103,6 +112,7 @@ data <- read_csv2("dane_WIID_2023.csv", show_col_types = FALSE) %>%
 ```
 
 ```{r, echo=FALSE, massage=FALSE}
+<<<<<<< HEAD
 head(data) 
 
 
@@ -114,7 +124,10 @@ library(tidyverse)
 library(e1071)  # Pakiet dla skośności i kurtozy
 library(scales)  # Pakiet dla lepszego formatowania liczb
 
+=======
+>>>>>>> Small update
 # Obliczanie statystyk opisowych
+
 statystyki_all <- data %>%
   summarise(
     # Statystyki dla PKB
@@ -170,8 +183,12 @@ print(statystyki_all)
 
 # Analiza danych
 
+<<<<<<< HEAD
 ## Jaka jest zależność między położeniem geograficznym w Europie, a wysokością PKB i wzrostem gospodarczym państw na przestrzeni lat?
 
+=======
+## Jaka jest zależność między położeniem geograficznym w Europie a wysokością PKB i wzrostem gospodarczym państw na przestrzeni lat?
+>>>>>>> Small update
 
 Może te akapity będą odpowiedziami na poszczególne pytania badawcze?
 
@@ -214,8 +231,11 @@ ggplot(data_2000, aes(x = reorder(Kraj, PKB), y = PKB, fill = Region)) +
 
 
 ```
+<<<<<<< HEAD
 Na wykresie widnieje 15 krajów z najniższym PKB w roku 2000. Możemy zaobserwować przewagę państw z Europy Wschodniej, które zostały oznaczone kolorem czerwonym oraz z Europy Południowej oznaczone kolorem zielonym. Ukraina, Mołdawia, Białoruś znajdują się w Europie Wschodniej, a ich PKB jest najniższe z całej Europy.
 
+=======
+>>>>>>> Small update
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # Filtracja danych dla roku 2000
@@ -277,6 +297,11 @@ ggplot(data_2020, aes(x = reorder(Kraj, PKB), y = PKB, fill = Region)) +
 W 2020 roku na czele listy krajów z najniższym PKB znalazły się kraje Południowej takie jak Macedonia Północna i Serbia. W porównaniu z rokiem 2000 wystepuję dużo więcej państw z Europy Południowj. Kraje Europy Wschodniej, takie jak Bułgaria, Rosja, Rumunia, wciąż dominują w zestawieniu najniższego PKB, ale zauważalny jest wzrost ich gospodarek w porównaniu do roku 2000.
 
 
+<<<<<<< HEAD
+=======
+```
+
+>>>>>>> Small update
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # Filtracja danych dla roku 2000
 data_2020 <- data %>%
@@ -302,7 +327,10 @@ ggplot(data_2020, aes(x = reorder(Kraj, PKB), y = PKB, fill = Region)) +
   )
 
 ```
+<<<<<<< HEAD
 W 2020 roku najwyższe PKB nadal posiada Luksemburg co nie zmieniło sie w przeciągu 20 lat. Jednak róznica pomiędzy Luksemburgiem, a np. Iralndią nie jest już tak znaczna. Wciąż występuję dominajcja regionów północnych i zachodnich.
+=======
+>>>>>>> Small update
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # Biblioteki
@@ -349,6 +377,7 @@ library(patchwork)
 plot_rich 
 plot_poor
 ```
+<<<<<<< HEAD
 Luksemburg i Irlandia odnotowały najszybszy wzrost PKB, szczególnie po 2000 roku. Irlandia osiągnęła gwałtowny wzrost ostatnich dwudziestu latach. Dania, Norwegia, Szwajcaria, Austria, i Holandia charakteryzują się stabilnym, ale mniej dynamicznym wzrostem w porównaniu do Irlandii i Luksemburga. W latach 2008-2009 widoczny jest spadek PKB w większości krajów, co jest efektem globalnego kryzysu finansowego.
 
 Dla krajów takich jak Rosja, Ukraina, Białoruś, Mołdawia czy Łotwa można zaobserwować znaczny spadek PKB w latach 90., co jest związane z rozpadem Związku Radzieckiego. Po roku 2000 widoczny jest wyraźny wzrost PKB we wszystkich analizowanych krajach, co wskazuje na poprawę sytuacji gospodarczej po trudnym okresie transformacji lat 90.
@@ -356,6 +385,8 @@ Dla krajów takich jak Rosja, Ukraina, Białoruś, Mołdawia czy Łotwa można z
 
 
 
+=======
+>>>>>>> Small update
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 data_region_year <- data %>%
@@ -375,9 +406,12 @@ ggplot(data_region_year, aes(x = Rok, y = mean_PKB, color = Region)) +
   theme(legend.position = "bottom")
 ```
 
+<<<<<<< HEAD
 Na wykresie zaobserwujemy zróżnicowany poziom PKB między regionami.Wszystkie regiony Europy wykazują wzrost PKB w analizowanym okresie, jednak region zachodni i północny rozwiją się najprężniej. Europa Zachodnia (Western Europe) odznacza się najwyższym poziomem PKB w całym okresie. Europa Wschodnia (Eastern Europe) ma najniższy poziom PKB, co wynika z opóźnienia w rozwoju gospodarczym w porównaniu z resztą regionów.
 
 
+=======
+>>>>>>> Small update
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # Obliczenie średniego PKB dla każdego regionu
 avg_pkb_region <- data %>%
@@ -398,7 +432,10 @@ ggplot(avg_pkb_region, aes(x = reorder(Region, Średni_PKB), y = Średni_PKB, fi
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
+<<<<<<< HEAD
 Średnia wartość PKB w roku 2000 znacznie rózniła sie między regionami.Europa Zachodnia miała najwyższe średnie PKB spośród wszystkich, za to Europa Wschodnia zanotowała njaniższe.Europa Północna zajmowała drugie miejsce pod względem wielkości PKB, a tuż za nią Europa Południowa.
+=======
+>>>>>>> Small update
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # Obliczenie średniego PKB dla każdego regionu
@@ -421,9 +458,12 @@ ggplot(avg_pkb_region, aes(x = reorder(Region, Średni_PKB), y = Średni_PKB, fi
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
+<<<<<<< HEAD
 W 2020 roku Europa Zachodnia i Północna pozostają liderami gospodarczymi. Rozwój gospodarczy Europy Wschodniej poskutkował zmniejszaniem się  dysproporcji pomiędzy Europy Południowej. Pomimo postępu, różnice w poziomie PKB wciąż są widoczne choć mniejsze w porównaniu z 2000 rokiem.
 
 
+=======
+>>>>>>> Small update
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 data_2020 <- data %>%
   filter(Rok == 2000)
@@ -507,9 +547,12 @@ results %>%
   select(Region1, Region2, p_value, p_adjusted) %>%
   arrange(p_value)
 
+<<<<<<< HEAD
 
 ```
 
+=======
+>>>>>>> Small update
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 data_2020 <- data %>%
   filter(Rok == 2020)
@@ -526,9 +569,12 @@ ggplot(data_2020, aes(x = Region, y = PKB, fill = Region)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
 ```
 
+<<<<<<< HEAD
 Wszystkie regiony Europy odnotowały wzrost mediany PKB w 2020 roku w porównaniu do 2000 roku. Ranking wielkości median pozostaje niezmienny. Rozstępy międzykwartylowe sugerują, że największe różnice w PKB występują w Europie Południowej, a najmniejsze w Europie Wschodniej.Wartości odstające w Europie Zachodniej i Północnej potwierdzają istnienie liderów gospodarczych w tych regionach, podczas gdy w Europie Wschodniej wskazują na kraje zmagające się z trudnościami gospodarczymi.
 
 
+=======
+>>>>>>> Small update
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # Ładowanie niezbędnych bibliotek
 library(rnaturalearth)
@@ -636,14 +682,19 @@ ggplot(world_filtered) +
 
 
 ```
+<<<<<<< HEAD
 
 Mapa PKB w krajach Europy w 2020 roku ukazuje istotne zróżnicowanie gospodarcze między regionami. Europa Zachodnia i Północna utrzymały najwyższe wartości PKB, wskazując na stabilny rozwój. Europa Południowa odnotowała umiarkowany wzros, a Europa Wschodnia zanotowała największy względny wzrost, choć poziom PKB nadal pozostaje najniższy. W porównaniu do 2000 roku we wszystkich regionach widoczny jest wyraźny wzrost gospodarczy, szczególnie w Europie Wschodniej.
 
 ## Akapit
+=======
+
+## Czy dołączenie do Unii Europejskiej miało wpływ na zmianę PKB państw członkowskich?
+>>>>>>> Small update
 
 2\. Czy dołączenie do UE miało wpływ na zmianę GDP?
 
-## Akapit
+## Jak duże są nierówności dochodowe między państwami w Europie?
 
 3\. Zbadanie współczynnika nierówności dochodowej w Europie.
 
