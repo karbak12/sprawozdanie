@@ -8,6 +8,7 @@ author:
 format: pdf
 editor: visual
 lang: pl
+
 ---
 
 # Wstęp
@@ -198,7 +199,7 @@ ggplot(data_2000, aes(x = reorder(Kraj, PKB), y = PKB, fill = Region)) +
   labs(
     title = "15 krajów w Europie z najniższym PKB w 2000 roku",
     x = "Kraj",
-    y = "PKB na mieszkańca (USD)"
+    y = "PKB"
   ) +
   theme_minimal() +
   scale_fill_brewer(palette = "Paired", name = "Region") +  # Kolory dla regionów
@@ -227,7 +228,7 @@ ggplot(data_2000, aes(x = reorder(Kraj, PKB), y = PKB, fill = Region)) +
   labs(
     title = "15 krajów w Europie z najwyższym PKB w 2000 roku",
     x = "Kraj",
-    y = "PKB na mieszkańca (USD)"
+    y = "PKB"
   ) +
   theme_minimal() +
   scale_fill_brewer(palette = "Paired", name = "Region") +  # Kolory dla regionów
@@ -256,7 +257,7 @@ ggplot(data_2020, aes(x = reorder(Kraj, PKB), y = PKB, fill = Region)) +
   labs(
     title = "15 krajów w Europie z najniższym PKB w 2020 roku",
     x = "Kraj",
-    y = "PKB na mieszkańca (USD)"
+    y = "PKB"
   ) +
   theme_minimal() +
   scale_fill_brewer(palette = "Paired", name = "Region") +  # Kolory dla regionów
@@ -283,7 +284,7 @@ ggplot(data_2020, aes(x = reorder(Kraj, PKB), y = PKB, fill = Region)) +
   labs(
     title = "15 krajów w Europie z najwyższym PKB w 2020 roku",
     x = "Kraj",
-    y = "PKB na mieszkańca (USD)"
+    y = "PKB"
   ) +
   theme_minimal() +
   scale_fill_brewer(palette = "Paired", name = "Region") +  # Kolory dla regionów
@@ -541,7 +542,7 @@ ggplot(world_filtered) +
                         name = "Wartość PKB",    # Tytuł legendy
                         labels = scales::label_comma()) + # Skala kolorów  # Skala kolorów
   theme_minimal() +  # Minimalistyczny wygląd
-  labs(title = "Mapa PKB w krajach Europy w 2020 roku)") +
+  labs(title = "Mapa PKB w krajach Europy w 2020 roku") +
   theme(axis.text = element_blank(),   # Usunięcie napisów osi
         axis.ticks = element_blank(),  # Usunięcie ticków osi
         axis.title = element_blank())  # Usunięcie tytułów osi
@@ -594,7 +595,7 @@ ggplot(world_filtered) +
                         name = "Wartość PKB",    # Tytuł legendy
                         labels = scales::label_comma()) + # Skala kolorów
   theme_minimal() +  # Minimalistyczny wygląd
-  labs(title = "Mapa PKB w krajach Europy w 2000 roku)",
+  labs(title = "Mapa PKB w krajach Europy w 2000 roku",
        subtitle = "PKB") +
   theme(axis.text = element_blank(),   # Usunięcie napisów osi
         axis.ticks = element_blank(),  # Usunięcie ticków osi
