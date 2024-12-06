@@ -71,17 +71,21 @@ Z bazy danych WIID będziemy w niniejszym raporcie skupiać się na analizie dan
 
 Po przygotowaniu otrzymałyśmy zbiór około 13 tysięcy wartości w 9 kolumnach. Prezentuje się on następująco:
 
-<<<<<<< HEAD
-=======
-```{r, echo=FALSE, massage=FALSE}
+```{r, echo=FALSE, massage=FALSE, warning=FALSE}
+
 # Ładowanie niezbędnych pakietów
 
 library(tidyverse) # Pakiet do wczytania i czyszczenia danych
 library(e1071)  # Pakiet dla skośności i kurtozy
 library(scales)  # Pakiet dla lepszego formatowania liczb
+library(rnaturalearth)
+library(sf)
+library(dplyr)
+library(ggplot2)
+library(readr)
+library(stringr)
 ```
 
->>>>>>> Small update
 ```{r, echo=FALSE, massage=FALSE}
 # Oczyszczanie danych
 
@@ -108,14 +112,7 @@ data <- read_csv2("dane_WIID_2023.csv", show_col_types = FALSE) %>%
     UE = eu,
     PKB = gdp
   )
-
-```
-
-```{r, echo=FALSE, massage=FALSE}
-<<<<<<< HEAD
-head(data) 
-
-
+head(data)
 ```
 
 ```{r, echo=FALSE, massage=FALSE}
@@ -124,8 +121,6 @@ library(tidyverse)
 library(e1071)  # Pakiet dla skośności i kurtozy
 library(scales)  # Pakiet dla lepszego formatowania liczb
 
-=======
->>>>>>> Small update
 # Obliczanie statystyk opisowych
 
 statystyki_all <- data %>%
@@ -183,12 +178,8 @@ print(statystyki_all)
 
 # Analiza danych
 
-<<<<<<< HEAD
 ## Jaka jest zależność między położeniem geograficznym w Europie, a wysokością PKB i wzrostem gospodarczym państw na przestrzeni lat?
 
-=======
-## Jaka jest zależność między położeniem geograficznym w Europie a wysokością PKB i wzrostem gospodarczym państw na przestrzeni lat?
->>>>>>> Small update
 
 Może te akapity będą odpowiedziami na poszczególne pytania badawcze?
 
@@ -231,11 +222,8 @@ ggplot(data_2000, aes(x = reorder(Kraj, PKB), y = PKB, fill = Region)) +
 
 
 ```
-<<<<<<< HEAD
-Na wykresie widnieje 15 krajów z najniższym PKB w roku 2000. Możemy zaobserwować przewagę państw z Europy Wschodniej, które zostały oznaczone kolorem czerwonym oraz z Europy Południowej oznaczone kolorem zielonym. Ukraina, Mołdawia, Białoruś znajdują się w Europie Wschodniej, a ich PKB jest najniższe z całej Europy.
 
-=======
->>>>>>> Small update
+Na wykresie widnieje 15 krajów z najniższym PKB w roku 2000. Możemy zaobserwować przewagę państw z Europy Wschodniej, które zostały oznaczone kolorem czerwonym oraz z Europy Południowej oznaczone kolorem zielonym. Ukraina, Mołdawia, Białoruś znajdują się w Europie Wschodniej, a ich PKB jest najniższe z całej Europy.
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # Filtracja danych dla roku 2000
@@ -286,6 +274,7 @@ ggplot(data_2020, aes(x = reorder(Kraj, PKB), y = PKB, fill = Region)) +
     y = "PKB"
   ) +
   theme_minimal() +
+
   scale_fill_brewer(palette = "Set1", name = "Region") +  # Kolory dla regionów
   scale_y_continuous(labels = scales::label_number(accuracy = 1)) +
   theme(
@@ -296,12 +285,8 @@ ggplot(data_2020, aes(x = reorder(Kraj, PKB), y = PKB, fill = Region)) +
 ```
 W 2020 roku na czele listy krajów z najniższym PKB znalazły się kraje Południowej takie jak Macedonia Północna i Serbia. W porównaniu z rokiem 2000 wystepuję dużo więcej państw z Europy Południowj. Kraje Europy Wschodniej, takie jak Bułgaria, Rosja, Rumunia, wciąż dominują w zestawieniu najniższego PKB, ale zauważalny jest wzrost ich gospodarek w porównaniu do roku 2000.
 
+  scale_fill_gradient(low = "lightblue", high = "darkblue",labels = scales::label_number(accuracy = 1))
 
-<<<<<<< HEAD
-=======
-```
-
->>>>>>> Small update
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # Filtracja danych dla roku 2000
 data_2020 <- data %>%
@@ -325,17 +310,12 @@ ggplot(data_2020, aes(x = reorder(Kraj, PKB), y = PKB, fill = Region)) +
   theme(
     legend.position = "bottom"  # Przeniesienie legendy na dół
   )
-
 ```
-<<<<<<< HEAD
+
 W 2020 roku najwyższe PKB nadal posiada Luksemburg co nie zmieniło sie w przeciągu 20 lat. Jednak róznica pomiędzy Luksemburgiem, a np. Iralndią nie jest już tak znaczna. Wciąż występuję dominajcja regionów północnych i zachodnich.
-=======
->>>>>>> Small update
+
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
-# Biblioteki
-library(tidyverse)
-
 # Filtracja danych dla krajów
 rich_countries <- c("Luxembourg", "Ireland", "Switzerland", "Norway", "Netherlands", "Denmark", "Austria")
 poor_countries <- c("Moldova", "Ukraine", "Belarus", "Bulgaria","North Macedonia", "Russia","Latvia")
@@ -377,16 +357,12 @@ library(patchwork)
 plot_rich 
 plot_poor
 ```
-<<<<<<< HEAD
+
 Luksemburg i Irlandia odnotowały najszybszy wzrost PKB, szczególnie po 2000 roku. Irlandia osiągnęła gwałtowny wzrost ostatnich dwudziestu latach. Dania, Norwegia, Szwajcaria, Austria, i Holandia charakteryzują się stabilnym, ale mniej dynamicznym wzrostem w porównaniu do Irlandii i Luksemburga. W latach 2008-2009 widoczny jest spadek PKB w większości krajów, co jest efektem globalnego kryzysu finansowego.
 
 Dla krajów takich jak Rosja, Ukraina, Białoruś, Mołdawia czy Łotwa można zaobserwować znaczny spadek PKB w latach 90., co jest związane z rozpadem Związku Radzieckiego. Po roku 2000 widoczny jest wyraźny wzrost PKB we wszystkich analizowanych krajach, co wskazuje na poprawę sytuacji gospodarczej po trudnym okresie transformacji lat 90.
 
 
-
-
-=======
->>>>>>> Small update
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 data_region_year <- data %>%
@@ -406,12 +382,9 @@ ggplot(data_region_year, aes(x = Rok, y = mean_PKB, color = Region)) +
   theme(legend.position = "bottom")
 ```
 
-<<<<<<< HEAD
 Na wykresie zaobserwujemy zróżnicowany poziom PKB między regionami.Wszystkie regiony Europy wykazują wzrost PKB w analizowanym okresie, jednak region zachodni i północny rozwiją się najprężniej. Europa Zachodnia (Western Europe) odznacza się najwyższym poziomem PKB w całym okresie. Europa Wschodnia (Eastern Europe) ma najniższy poziom PKB, co wynika z opóźnienia w rozwoju gospodarczym w porównaniu z resztą regionów.
 
 
-=======
->>>>>>> Small update
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # Obliczenie średniego PKB dla każdego regionu
 avg_pkb_region <- data %>%
@@ -432,10 +405,9 @@ ggplot(avg_pkb_region, aes(x = reorder(Region, Średni_PKB), y = Średni_PKB, fi
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
-<<<<<<< HEAD
+
 Średnia wartość PKB w roku 2000 znacznie rózniła sie między regionami.Europa Zachodnia miała najwyższe średnie PKB spośród wszystkich, za to Europa Wschodnia zanotowała njaniższe.Europa Północna zajmowała drugie miejsce pod względem wielkości PKB, a tuż za nią Europa Południowa.
-=======
->>>>>>> Small update
+
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # Obliczenie średniego PKB dla każdego regionu
@@ -458,12 +430,9 @@ ggplot(avg_pkb_region, aes(x = reorder(Region, Średni_PKB), y = Średni_PKB, fi
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-<<<<<<< HEAD
 W 2020 roku Europa Zachodnia i Północna pozostają liderami gospodarczymi. Rozwój gospodarczy Europy Wschodniej poskutkował zmniejszaniem się  dysproporcji pomiędzy Europy Południowej. Pomimo postępu, różnice w poziomie PKB wciąż są widoczne choć mniejsze w porównaniu z 2000 rokiem.
 
 
-=======
->>>>>>> Small update
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 data_2020 <- data %>%
   filter(Rok == 2000)
@@ -547,12 +516,8 @@ results %>%
   select(Region1, Region2, p_value, p_adjusted) %>%
   arrange(p_value)
 
-<<<<<<< HEAD
-
 ```
 
-=======
->>>>>>> Small update
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 data_2020 <- data %>%
   filter(Rok == 2020)
@@ -569,21 +534,9 @@ ggplot(data_2020, aes(x = Region, y = PKB, fill = Region)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
 ```
 
-<<<<<<< HEAD
 Wszystkie regiony Europy odnotowały wzrost mediany PKB w 2020 roku w porównaniu do 2000 roku. Ranking wielkości median pozostaje niezmienny. Rozstępy międzykwartylowe sugerują, że największe różnice w PKB występują w Europie Południowej, a najmniejsze w Europie Wschodniej.Wartości odstające w Europie Zachodniej i Północnej potwierdzają istnienie liderów gospodarczych w tych regionach, podczas gdy w Europie Wschodniej wskazują na kraje zmagające się z trudnościami gospodarczymi.
 
-
-=======
->>>>>>> Small update
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
-# Ładowanie niezbędnych bibliotek
-library(rnaturalearth)
-library(sf)
-library(dplyr)
-library(ggplot2)
-library(readr)
-library(stringr)
-
 # Krok 1: Wczytanie danych geograficznych krajów z rnaturalearth
 world <- ne_countries(scale = 50, returnclass = 'sf')
 
@@ -622,9 +575,6 @@ ggplot(world_filtered) +
   theme(axis.text = element_blank(),   # Usunięcie napisów osi
         axis.ticks = element_blank(),  # Usunięcie ticków osi
         axis.title = element_blank())  # Usunięcie tytułów osi
-
-
-
 
 ```
 Mapa PKB z 2000 roku zróżnicowanie gospodarcze w Europie w 2000 roku było wyraźnie widoczne między bogatą Europą Zachodnią i Północną, umiarkowanie rozwiniętą Europą Południową oraz rozwijającą się Europą Wschodnią.
@@ -678,25 +628,415 @@ ggplot(world_filtered) +
   theme(axis.text = element_blank(),   # Usunięcie napisów osi
         axis.ticks = element_blank(),  # Usunięcie ticków osi
         axis.title = element_blank())  # Usunięcie tytułów osi
-
-
-
 ```
-<<<<<<< HEAD
-
 Mapa PKB w krajach Europy w 2020 roku ukazuje istotne zróżnicowanie gospodarcze między regionami. Europa Zachodnia i Północna utrzymały najwyższe wartości PKB, wskazując na stabilny rozwój. Europa Południowa odnotowała umiarkowany wzros, a Europa Wschodnia zanotowała największy względny wzrost, choć poziom PKB nadal pozostaje najniższy. W porównaniu do 2000 roku we wszystkich regionach widoczny jest wyraźny wzrost gospodarczy, szczególnie w Europie Wschodniej.
 
-## Akapit
-=======
-
 ## Czy dołączenie do Unii Europejskiej miało wpływ na zmianę PKB państw członkowskich?
->>>>>>> Small update
 
-2\. Czy dołączenie do UE miało wpływ na zmianę GDP?
+-   Zestaw dane krajów UE z krajami, które nie przystąpiły do Unii (np. Norwegia, Szwajcaria, kraje Bałkanów Zachodnich). Zastosuj technikę różnic w różnicach (Difference-in-Differences), aby porównać zmiany PKB między krajami UE i kontrolną grupą państw spoza UE.
 
-## Jak duże są nierówności dochodowe między państwami w Europie?
+Unia Europejska powstała 1 listopada 1993 roku. Od lat odgrywa ona kluczową rolę w rozwoju państw członkowskich. W niniejszym sprawozdaniu zajmiemy się czterema rozszerzeniami Unii Europejskiej, z lat 1995, 2004, 2007 i 2013. Zbadamy czy w obrębie 10 lat od przystąpienia do Unii Europejskiej dane państwa na tym skorzystały - w sensie miary rozwoju gospodarczego, jakim jest produkt krajowy brutto.
 
-3\. Zbadanie współczynnika nierówności dochodowej w Europie.
+### Rok 1995 - dołączenie do UE Austrii, Szwecji i Finlandii
+
+1.  Porównanie wartości PKB ze średnią unii
+
+Zaczniemy analizę od spojrzenia na wykres wartości PKB przez 10 lat przed dołączeniem do Unii Europejskiej i 10 lat po dołączeniu.
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library(broom)
+# Obliczanie średniego PKB UE w latach 1985-2005
+data_avg_95 <- data %>%
+  filter(Rok >= 1985, Rok <= 2005, 
+        Kraj %in% c("Belgium", "France", "Netherlands", "Luxembourg", "Germany", "Italy", "Greece", "Spain", "Portugal")) %>%
+  group_by(Rok) %>%
+  summarise(średnie_PKB_UE = mean(PKB, na.rm = TRUE))
+
+# Przygotowanie danych na konkretne państwa w latach 1985-2005
+data_ue_95 <- data %>%
+  filter(Kraj %in% c("Austria", "Finland", "Sweden"), 
+         Rok >= 1985, Rok <= 2005) %>%
+  mutate(
+    Okres = case_when(
+      Rok <= 1995 ~ "Przed 1995 rokiem",
+      Rok > 1995 ~ "Po 1995 roku"
+    ),
+    Kraj = recode(
+      Kraj, 
+      "Austria" = "Austria", 
+      "Finland" = "Finlandia", 
+      "Sweden" = "Szwecja")
+  )
+
+# Wykres
+ggplot(data_ue_95, aes(x = Rok, y = PKB, color = Kraj, linetype = Okres)) +  
+  geom_line(
+    data = data_avg_95, 
+    aes(x = Rok, y = średnie_PKB_UE, color = "Średnia PKB w UE"), 
+    size = 0.7, 
+    linetype = "dashed"
+    ) +
+  geom_point() +
+  #geom_line() +
+  #geom_smooth(method = "lm", se = TRUE) + #regresja liniowa
+  scale_color_manual(
+    values = c(
+      "Austria" = "orange",
+      "Finlandia" = "purple",
+      "Szwecja" = "green",
+      "Średnia PKB w UE" = "blue"
+    ),
+     breaks = c("Austria", "Finlandia", "Szwecja", "Średnia PKB w UE"),
+    name = "Kraj / Linia"
+  ) +
+  labs(
+    title = "Porównanie PKB w latach 1985 - 2005",
+    x = "Rok",
+    y = "PKB (USD per capita)",
+    color = "Kraj",
+    linetype = "Okres"
+  ) +
+  theme_minimal() +
+  scale_x_continuous(
+    limits = c(1985, 2005),
+    breaks = seq(1985, 2005, 2),
+    labels = function(x) format(x, digits = 4)
+  ) +
+  scale_linetype_manual(
+    values = c("Przed UE" = "dashed", "Po UE" = "longdash") # Własne typy linii
+  ) +
+  geom_vline(xintercept = 1995, linetype = "dotdash", color = "black") +  
+  theme(axis.text.x = element_text(size = 8))
+```
+
+Widocznym jest, że akcesja sprawiła przybliżenie PKB Finlandii, Szwecji i Austrii do średniej PKB Unii.
+
+#### Średnie tempo wzrostu PKB
+
+Zbadajmy średnie tempo wzrostu produktu krajowego brutto przed integracją z Unią Europejską jak i po niej.
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+
+# Obliczanie różnicy rocznego PKB
+tempo_pkb_95 <- data_ue_95 %>%
+  filter(Kraj %in% c("Austria", "Finlandia", "Szwecja"),
+         (Kraj == "Austria" & Rok >= 1994 & Rok <= 2005) | 
+         (Kraj != "Austria" & Rok >= 1985 & Rok <= 2005)) %>%
+  group_by(Kraj, Okres) %>%
+  arrange(Rok) %>%
+  mutate(
+    roczna_zmiana_pkb = (PKB - lag(PKB)) / lag(PKB)  # Obliczanie rocznej zmiany PKB
+  ) %>%
+  filter(!is.na(roczna_zmiana_pkb)) %>%
+  # Obliczanie średniego tempa wzrostu oraz odchylenia standardowego w jednym etapie
+  summarize(
+    średnie_tempo = mean(roczna_zmiana_pkb, na.rm = TRUE) * 100,  # Średnie tempo wzrostu
+    sd_tempo = sd(roczna_zmiana_pkb, na.rm = TRUE),  # Odchylenie standardowe
+    .groups = 'drop'
+  ) %>%
+  rename(
+    "Średnie tempo wzrostu w %" = średnie_tempo,
+    "STD wzrostu rocznego" = sd_tempo
+  )
+
+# Zobacz wynik
+print(tempo_pkb_95)
+
+```
+
+Z tabeli możemy odczytać, że w Finlandii oraz Szwecji średnie tempo wzrostu po wstąpieniu do Unii Europejskiej się zwiększyło, odpowiednio o około 0,41 oraz 0,38 punktów procentowych, natomiast dla Austrii to tempo zmniejszyło się o 0,23 punkty procentowe.
+
+\*Uwaga\*: W tym przypadku dla Austrii policzone zostały wartości dla lat 1994-2005, by uniknąć błędów wynikających z braków danych. Przez to średnie roczne tempo wzrostu na lata 1985-1995 może różnić się od rzeczywistego.
+
+Odchylenie standardowe tempa wzrostu będzie wskazywało na stabilność wzrostu. Dla wszystkich trzech państw rozproszenie wartości wokół średniej jest niskie. Tylko dla Finlandii po 1995 roku odchylenie standardowe zmalało, co może sugerować stabilniejszą gospodarkę, bardziej przewidywalne roczne zmiany PKB, mniej narażone na wahania.
+
+#### Analiza t-testu
+
+W poniższej tabeli znajdują się wyniki t-testu porównania średnich PKB przed i po 1995 roku na poziomie ufności 95%.
+
+```{r}
+library(dplyr)  # Jeśli tylko dplyr
+# lub
+library(tidyverse)  # Jeśli używasz całego zestawu tidyverse
+library(broom)  # Ładowanie pakietu broom
+
+# t-test porównania średnich PKB przed i po 1995 roku
+t_test_95 <- data_ue_95 %>%
+  group_by(Kraj) %>%
+  do(tidy(t.test(PKB ~ Okres, data = .))) %>%
+  select(Kraj, estimate, p.value, conf.low, conf.high) %>%
+  rename(
+    "Różnica średnich" = estimate, 
+    "p-wartość" = p.value, 
+    "Dolna gr" = conf.low, 
+    "Górna gr" = conf.high)
+
+print(t_test_95)
+
+```
+
+Różnica średnich w każdym przypadku jest dodatnia i znajduje się w swoim przedziale ufności, zatem po wejściu w struktury UE nastąpił wzrost produktów krajowych brutto dla badanych państw. Bardzo małe p-wartości wskazują, że jest to statystycznie istotny wzrost.
+
+#### Wnioski
+
+Po analizie dostępnych danych, można stwierdzić, że rozpoczęcie członkostwa w Unii Europejskiej w 1995 roku było dobrą decyzją dla gospodarek Szwecji, Austrii oraz Finlandii.
+
+### Rok 2004 - wybrane: Polska, Litwa, Słowenia, Węgry
+
+#### Porównanie wartości PKB ze średnią unii
+
+komentarz
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+
+# Obliczanie średniego PKB UE w latach 1994-2014
+data_avg_04 <- data %>%
+  filter(Rok >= 1994, Rok <= 2014, 
+        Kraj %in% c("Belgium", "France", "Netherlands", "Luxembourg", "Germany", "Italy", "Greece", "Spain", "Portugal", "Austria", "Finland", "Sweden")) %>%
+  group_by(Rok) %>%
+  summarise(średnie_PKB_UE_04 = mean(PKB, na.rm = TRUE))
+
+# Przygotowanie danych na konkretne państwa w latach 1985-2005
+data_ue_04 <- data %>%
+  filter(Kraj %in% c("Poland", "Lithuania", "Slovenia", "Hungary"), 
+         Rok >= 1994, Rok <= 2014) %>%
+  mutate(
+    Okres = case_when(
+      Rok <= 2004 ~ "Przed 2004 rokiem",
+      Rok > 2004 ~ "Po 2004 roku"
+    ),
+    Kraj = recode(
+      Kraj, 
+      "Poland" = "Polska",
+      "Lithuania" = "Litwa", 
+      "Slovenia" = "Słowenia", 
+      "Hungary" = "Węgry")
+  )
+
+# Wykres
+ggplot(data_ue_04, aes(x = Rok, y = PKB, color = Kraj, linetype = Okres)) +  
+  geom_line(
+    data = data_avg_04, 
+    aes(x = Rok, y = średnie_PKB_UE_04, color = "Średnia PKB w UE"), 
+    size = 0.7, 
+    linetype = "dashed"
+    ) +
+  geom_point() +
+  #geom_line() +
+  #geom_smooth(method = "lm", se = TRUE) + #regresja liniowa
+  scale_color_manual(
+    values = c(
+      "Słowenia" = "orange",
+      "Węgry" = "purple",
+      "Litwa" = "green",
+      "Polska" = "red",
+      "Średnia PKB w UE" = "blue"
+    ),
+     breaks = c("Średnia PKB w UE", "Słowenia", "Węgry", "Litwa", "Polska"),
+    name = "Kraj / Linia"
+  ) +
+  labs(
+    title = "Porównanie PKB w latach 1994 - 2014",
+    x = "Rok",
+    y = "PKB (USD per capita)",
+    color = "Kraj",
+    linetype = "Okres"
+  ) +
+  theme_minimal() +
+  scale_x_continuous(
+    limits = c(1994, 2014),
+    breaks = seq(1994, 2014, 2),
+    labels = function(x) format(x, digits = 4)
+  ) +
+  geom_vline(xintercept = 2004, linetype = "dotdash", color = "black") +  
+  theme(axis.text.x = element_text(size = 8))
+```
+
+komentarz
+
+#### Średnie tempo wzrostu PKB
+
+Zbadajmy średnie tempo wzrostu produktu krajowego brutto przed integracją z Unią Europejską jak i po niej.
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+
+# Obliczanie różnicy rocznego PKB
+tempo_pkb_04 <- data_ue_04 %>%
+  group_by(Kraj, Okres) %>%
+  arrange(Rok) %>%
+  mutate(
+    roczna_zmiana_pkb = (PKB - lag(PKB)) / lag(PKB)  # Obliczanie rocznej zmiany PKB
+  ) %>%
+  filter(!is.na(roczna_zmiana_pkb)) %>%
+  # Obliczanie średniego tempa wzrostu oraz odchylenia standardowego w jednym etapie
+  summarize(
+    średnie_tempo = mean(roczna_zmiana_pkb, na.rm = TRUE) * 100,  # Średnie tempo wzrostu
+    sd_tempo = sd(roczna_zmiana_pkb, na.rm = TRUE),  # Odchylenie standardowe
+    .groups = 'drop'
+  ) %>%
+  rename(
+    "Średnie tempo wzrostu w %" = średnie_tempo,
+    "STD wzrostu rocznego" = sd_tempo
+  )
+
+# Zobacz wynik
+print(tempo_pkb_04)
+
+```
+
+KOmentarz
+
+#### Analiza t-testu
+
+W poniższej tabeli znajdują się wyniki t-testu porównania średnich PKB przed i po 2004 roku na poziomie ufności 95%.
+
+```{r}
+
+# t-test porównania średnich PKB przed i po 
+t_test_04 <- data_ue_04 %>%
+  group_by(Kraj) %>%
+  do(tidy(t.test(PKB ~ Okres, data = .))) %>%
+  select(Kraj, estimate, p.value, conf.low, conf.high) %>%
+  rename(
+    "Różnica średnich" = estimate, 
+    "p-wartość" = p.value, 
+    "Dolna gr" = conf.low, 
+    "Górna gr" = conf.high)
+
+print(t_test_04)
+
+```
+
+komentarz
+
+#### Wnioski
+
+komentarz
+
+### Rok 2007 - dołączenie do UE Bułgarii i Rumunii
+
+#### Porównanie wartości PKB ze średnią unii
+
+\[do zmiany\] Zaczniemy analizę od spojrzenia na wykres wartości PKB przez 10 lat przed dołączeniem do Unii Europejskiej i 10 lat po dołączeniu.
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+
+# Obliczanie średniego PKB UE w latach 1997-2017
+data_avg_07 <- data %>%
+  filter(Rok >= 1997, Rok <= 2017, UE == "EU" & !(Kraj %in% c("Croatia", "Romania", "Bulgaria"))) %>%
+  group_by(Rok) %>%
+  summarise(średnie_PKB_UE_07 = mean(PKB, na.rm = TRUE))
+
+# Przygotowanie danych dla Rumunii i Bułgarii
+data_ue_07 <- data %>%
+  filter(Kraj %in% c("Romania", "Bulgaria"), Rok >= 1997, Rok <= 2017) %>%
+  mutate(
+    Okres = case_when(
+      Rok <= 2007 ~ "Przed 2007 rokiem",
+      Rok > 2007 ~ "Po 2007 roku"
+    ),
+    Kraj = recode(Kraj, "Romania" = "Rumunia", "Bulgaria" = "Bułgaria"))
+
+# Wykres
+ggplot(data_ue_07, aes(x = Rok, y = PKB, color = Kraj, linetype = Okres)) +
+  geom_line(
+    data = data_avg_07, 
+    aes(x = Rok, y = średnie_PKB_UE_07, color = "Średnia PKB w UE"), 
+    size = 0.7, 
+    linetype = "dashed"
+    ) +
+  geom_point() +
+  geom_line(aes(x = Rok, y = PKB, color = Kraj, linetype = Okres) +
+  scale_color_manual(
+    values = c(
+      "Rumunia" = "red",
+      "Bułgaria" = "green", 
+      "Średnia PKB w UE" = "blue"
+    ), 
+    breaks = c("Rumunia", "Bułgaria", "Średnia PKB w UE"),name = "Kraj / Linia"),
+    name = "Kraj / Linia"
+  ) +
+  labs(
+    title = "Porównanie PKB w latach 1997 - 2007",
+    x = "Rok",
+    y = "PKB (USD per capita)",
+    color = "Kraj",
+    linetype = "Okres"
+  ) +
+  theme_minimal() +
+  scale_x_continuous(
+    limits = c(1997, 2017),
+    breaks = seq(1997, 2017, 2),
+    labels = function(x) format(x, digits = 4)
+  ) +
+  geom_vline(xintercept = 2007, linetype = "dotdash", color = "black") +  
+  theme(axis.text.x = element_text(size = 8))
+```
+
+komentarz
+
+#### Średnie tempo wzrostu PKB
+
+\[do zmiany\] Zbadajmy średnie tempo wzrostu produktu krajowego brutto przed integracją z Unią Europejską jak i po niej.
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+
+# Obliczanie różnicy rocznego PKB
+tempo_pkb_07 <- data_ue_07 %>%
+  group_by(Kraj, Okres) %>%
+  arrange(Rok) %>%
+  mutate(roczna_zmiana_pkb = (PKB - lag(PKB)) / lag(PKB)) %>%
+  filter(!is.na(roczna_zmiana_pkb)) %>%
+  # Obliczanie średniego tempa wzrostu oraz odchylenia standardowego w jednym etapie
+  summarize(
+    średnie_tempo = mean(roczna_zmiana_pkb, na.rm = TRUE) * 100,  # Średnie tempo wzrostu
+    sd_tempo = sd(roczna_zmiana_pkb, na.rm = TRUE),  # Odchylenie standardowe
+    .groups = 'drop'
+  ) %>%
+  rename(
+    "Średnie tempo wzrostu w %" = średnie_tempo,
+    "STD wzrostu rocznego" = sd_tempo
+  )
+
+# Zobacz wynik
+print(tempo_pkb_07)
+
+```
+
+komentarz
+
+#### Analiza t-testu
+
+W poniższej tabeli znajdują się wyniki t-testu porównania średnich PKB przed i po 1995 roku na poziomie ufności 95%.
+
+```{r}
+library(dplyr)  # Jeśli tylko dplyr
+# lub
+library(tidyverse)  # Jeśli używasz całego zestawu tidyverse
+library(broom)  # Ładowanie pakietu broom
+
+# t-test porównania średnich PKB przed i po 1995 roku
+t_test_07 <- data_ue_07 %>%
+  group_by(Kraj) %>%
+  do(tidy(t.test(PKB ~ Okres, data = .))) %>%
+  select(Kraj, estimate, p.value, conf.low, conf.high) %>%
+  rename(
+    "Różnica średnich" = estimate, 
+    "p-wartość" = p.value, 
+    "Dolna gr" = conf.low, 
+    "Górna gr" = conf.high)
+
+print(t_test_07)
+
+```
+
+Różnica średnich w każdym przypadku jest dodatnia i znajduje się w swoim przedziale ufności, zatem po wejściu w struktury UE nastąpił wzrost produktów krajowych brutto dla badanych państw. Bardzo małe p-wartości wskazują, że jest to statystycznie istotny wzrost.
+
+#### Wnioski
+
+Po analizie dostępnych danych, można stwierdzić, że rozpoczęcie członkostwa w Unii Europejskiej w 1995 roku było dobrą decyzją dla gospodarek Szwecji, Austrii oraz Finlandii. \## Jak duże są nierówności dochodowe między państwami w Europie?
+
+Zbadanie współczynnika nierówności dochodowej w Europie.
 
 ## Wnioski
 
@@ -711,5 +1051,8 @@ Przypomnienie najważniejszych wniosków z analizy.
 Myślę, że to bardzo fajny dodatkowy akapit, który warto uwzględnić na lepsze punkciki :)
 
 -   **Ograniczenia**: Omówienie wszelkiech ograniczeń analizy, np. problem z jakością danych, brakującymi wartościami, czy ograniczonym zakresem badanych zmiennych.
+
+    -   Dane PKB powinny być porównane z inflacją, bezrobociem itp. w 2 pytaniu przydałyby się informacje o wielkości funduszy UE, ale nie mieliśmy dostępu do takich danych, więc taka analiza nie jest do końca zgodna z prawdą(efektywna?)
+    -   Integracja gospodarcza, wspólny rynek i stabilność polityczno-gospodarcza mogły pozytywnie wpłynąć. Dla głebszej analizy warto wziąć pod uwagę inne czynniki, takie jak globalne trendy gospodarcze, struktura gospodarek, reformy wewnętrzne czy wpływy kryzysów.
 
 -   **Propozycje przyszłych badań**: Zasugerowanie, co można by zbadać w przyszłości, aby poszerzyć lub pogłębić wyniki.
