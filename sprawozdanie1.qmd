@@ -56,14 +56,6 @@ Wszystkie dane są standaryzowane, aby umożliwić porównania między krajami i
 
 ## Wczytanie i przygotowanie danych
 
--   nadanie odpowiednich nazw zmiennych,
-
--   zadbanie o odpowiednie typy kolumn,
-
--   czyszczenie wartości, jeśli zachodzi taka konieczność,
-
--   dyskusję lub obsługę braków danych;
-
 Z bazy danych WIID będziemy w niniejszym raporcie skupiać się na analizie danych z Europy. Z tego powodu, pozostawiłyśmy wartości dotyczące jedynie analizowanego przez nas kontynentu. Zweryfikowałyśmy typy danych dla każdej kolumny, następnie, dla lepszej czytelności, nazwy kolumn zostały zmienione. Wiersze z brakami danych ("NA") usunęłyśmy, aby uniknąć nieciągłości. W krajach rozwiniętych dane o dochodach są powszechniej stosowane w badaniach, niż dane o wydatkach konsumpcyjnych, stąd zdecydowałyśmy się usunąć zmienną "Consumption" w kategorii "Zasoby".
 
 Po przygotowaniu otrzymałyśmy zbiór około 13 tysięcy wartości w 9 kolumnach. Prezentuje się on następująco:
@@ -76,7 +68,7 @@ Po przygotowaniu otrzymałyśmy zbiór około 13 tysięcy wartości w 9 kolumnac
 # include: flase - Ukrywa wynik kodu.
 
 # Ładowanie niezbędnych pakietów
-lapply(c("tidyverse", "e1071", "scales", "sf", "broom", "rnaturalearth", "ggsignif"), library, character.only = TRUE)
+lapply(c("tidyverse", "e1071", "scales", "sf", "broom", "rnaturalearth", "ggsignif", "virdis"), library, character.only = TRUE)
 ```
 
 ```{r, echo=FALSE, massage=FALSE, error=FALSE, warning=FALSE}
@@ -882,6 +874,140 @@ Wyniki t-testu sugerują, że wszystkie badane kraje doświadczyły istotnego wz
 ## Jak duże są nierówności dochodowe między państwami w Europie?
 
 Zbadanie współczynnika nierówności dochodowej w Europie.
+
+```{r, echo=FALSE, massage=FALSE, error=FALSE, warning=FALSE}
+
+# Krok 1: Wczytanie danych geograficznych krajów z rnaturalearth
+world <- ne_countries(scale = 50, returnclass = 'sf')
+
+# Krok 3: Lista krajów do wyświetlenia (bez Rosji)
+countries_to_show <- c("Albania", "Austria", "Belarus", "Belgium", "Bulgaria", 
+                       "Croatia", "Czechia", "Denmark", "Estonia", 
+                       "Finland", "France", "Germany", "Greece", "Hungary", "Iceland", 
+                       "Ireland", "Italy", "Latvia", "Lithuania", "Luxembourg", "Malta", 
+                       "Moldova", "Montenegro", "Netherlands", "North Macedonia", 
+                       "Norway", "Poland", "Portugal", "Romania", "Serbia", "Russia",
+                       "Serbia and Montenegro", "Slovakia", "Slovenia", "Soviet Union", 
+                       "Spain", "Sweden", "Switzerland", "Ukraine", "United Kingdom")
+
+# Krok 4: Filtruj dane, aby tylko wybrane kraje były w zbiorze i dla lat 1980, 1990, 2000, 2010, 2020
+data_filtered <- data %>%
+  filter(Kraj %in% countries_to_show)
+  
+# Krok 5: Połącz dane geograficzne z danymi o krajach
+world_filtered <- world %>%
+  filter(name %in% countries_to_show) %>%
+  left_join(data_filtered, by = c("name" = "Kraj"))
+```
+
+1. Porównanie współczynnika Giniego dla państw bogatszych i biedniejszych
+
+```{r, echo=FALSE, massage=FALSE, error=FALSE, warning=FALSE}
+# Definiowanie list bogatych i biednych krajów
+rich_countries <- data %>%
+  filter(Kraj %in% c("Luxembourg", "Ireland", "Switzerland", "Norway"))
+
+poor_countries <- data %>%
+  filter(Kraj %in% c("Moldova", "Ukraine", "Belarus", "Bulgaria"))
+
+# Wykres dla bogatych krajów
+ggplot(rich_countries, aes(x = Rok, y = G, color = Kraj)) +
+  geom_point() +
+  labs(title = "Zmiany wskaźnika Giniego dla bogatszych państw",
+       x = "Rok", y = "Wskaźnik Giniego") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  
+
+# Wykres dla biednych krajów
+ggplot(poor_countries, aes(x = Rok, y = G, color = Kraj)) +
+  geom_point() +
+  labs(title = "Zmiany wskaźnika Giniego dla biedniejszych państw",
+       x = "Rok", y = "Wskaźnik Giniego") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  
+
+```
+
+2. Porównanie całej Europy co dziesięciolecie
+
+
+```{r, echo=FALSE, massage=FALSE, error=FALSE, warning=FALSE}
+# Ustawienie układu 2x2 dla wykresów
+par(mfrow = c(2, 2))
+
+# Wykres dla roku 1990
+world_filtered_1990 <- world %>%
+  filter(name %in% countries_to_show) %>%
+  left_join(data_filtered %>% filter(Rok == 1990), by = c("name" = "Kraj"))
+
+ggplot(world_filtered_1990) + 
+  geom_sf(aes(fill = G), color = 'black') +  # Kolorowanie krajów na podstawie wskaźnika Giniego
+  coord_sf(crs = st_crs(3035),               # Ustawienie układu współrzędnych
+           xlim = c(2000000, 6200000), 
+           ylim = c(1500000, 5500000)) +     # Zakres widocznej części mapy
+  scale_fill_viridis_c(option = "C", na.value = 'white') +  # Skala kolorów i brak danych
+  labs(title = "Mapa nierówności dochodowych w 1990 roku") +
+  theme_minimal() +  # Minimalistyczny wygląd
+  theme(axis.text = element_blank(),   # Usunięcie napisów osi
+        axis.ticks = element_blank(),  # Usunięcie ticków osi
+        axis.title = element_blank())  # Usunięcie tytułów osi
+
+# Wykres dla roku 2000
+world_filtered_2000 <- world %>%
+  filter(name %in% countries_to_show) %>%
+  left_join(data_filtered %>% filter(Rok == 2000), by = c("name" = "Kraj"))
+
+ggplot(world_filtered_2000) + 
+  geom_sf(aes(fill = G), color = 'black') +  # Kolorowanie krajów na podstawie wskaźnika Giniego
+  coord_sf(crs = st_crs(3035),               # Ustawienie układu współrzędnych
+           xlim = c(2000000, 6200000), 
+           ylim = c(1500000, 5500000)) +     # Zakres widocznej części mapy
+  scale_fill_viridis_c(option = "C", na.value = 'white') +  # Skala kolorów i brak danych
+  labs(title = "Mapa nierówności dochodowych w 2000 roku") +
+  theme_minimal() +  # Minimalistyczny wygląd
+  theme(axis.text = element_blank(),   # Usunięcie napisów osi
+        axis.ticks = element_blank(),  # Usunięcie ticków osi
+        axis.title = element_blank())  # Usunięcie tytułów osi
+
+# Wykres dla roku 2010
+world_filtered_2010 <- world %>%
+  filter(name %in% countries_to_show) %>%
+  left_join(data_filtered %>% filter(Rok == 2010), by = c("name" = "Kraj"))
+
+ggplot(world_filtered_2010) + 
+  geom_sf(aes(fill = G), color = 'black') +  # Kolorowanie krajów na podstawie wskaźnika Giniego
+  coord_sf(crs = st_crs(3035),               # Ustawienie układu współrzędnych
+           xlim = c(2000000, 6200000), 
+           ylim = c(1500000, 5500000)) +     # Zakres widocznej części mapy
+  scale_fill_viridis_c(option = "C", na.value = 'white') +  # Skala kolorów i brak danych
+  labs(title = "Mapa nierówności dochodowych w 2010 roku") +
+  theme_minimal() +  # Minimalistyczny wygląd
+  theme(axis.text = element_blank(),   # Usunięcie napisów osi
+        axis.ticks = element_blank(),  # Usunięcie ticków osi
+        axis.title = element_blank())  # Usunięcie tytułów osi
+
+# Wykres dla roku 2020
+world_filtered_2020 <- world %>%
+  filter(name %in% countries_to_show) %>%
+  left_join(data_filtered %>% filter(Rok == 2020), by = c("name" = "Kraj"))
+
+ggplot(world_filtered_2020) + 
+  geom_sf(aes(fill = G), color = 'black') +  # Kolorowanie krajów na podstawie wskaźnika Giniego
+  coord_sf(crs = st_crs(3035),               # Ustawienie układu współrzędnych
+           xlim = c(2000000, 6200000), 
+           ylim = c(1500000, 5500000)) +     # Zakres widocznej części mapy
+  scale_fill_viridis_c(option = "C", na.value = 'white') +  # Skala kolorów i brak danych
+  labs(title = "Mapa nierówności dochodowych w 2020 roku") +
+  theme_minimal() +  # Minimalistyczny wygląd
+  theme(axis.text = element_blank(),   # Usunięcie napisów osi
+        axis.ticks = element_blank(),  # Usunięcie ticków osi
+        axis.title = element_blank())  # Usunięcie tytułów osi
+
+# Przywrócenie domyślnego układu wykresów
+par(mfrow = c(1, 1))
+
+
+```
 
 ## Wnioski
 
