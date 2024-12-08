@@ -278,7 +278,6 @@ ggplot(data_2020, aes(x = reorder(Kraj, PKB), y = PKB, fill = Region)) +
 W 2020 roku najwyższe PKB nadal posiada Luksemburg co nie zmieniło sie w przeciągu 20 lat. Jednak róznica pomiędzy Luksemburgiem, a np. Iralndią nie jest już tak znaczna. Wciąż występuję dominajcja regionów północnych i zachodnich.
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
-# Filtracja danych dla krajów
 rich_countries <- c("Luxembourg", "Ireland", "Switzerland", "Norway", "Netherlands", "Denmark", "Austria")
 poor_countries <- c("Moldova", "Ukraine", "Belarus", "Bulgaria","North Macedonia", "Russia","Latvia")
 
@@ -315,7 +314,7 @@ plot_poor <- ggplot(data_poor, aes(x = Rok, y = PKB_avg, color = Kraj)) +
   theme_minimal()
 
 # Wyświetlenie wykresów obok siebie
-library(patchwork)
+
 plot_rich 
 plot_poor
 ```
@@ -408,71 +407,7 @@ ggplot(data_2020, aes(x = Region, y = PKB, fill = Region)) +
 
 Region Europy Zachodniej posiada największą medianę. Następnie Europa Północna, Europa Południowa, Europa Wschodnia. Rozstępy międzykwartylowe wskazują na większe zróżnicowanie wewnątrz Europy Południowej, podczas gdy Europa Wschodnia i Północna są bardziej jednorodne. Wartości odstające w Europie Zachodniej i Północnej pokazują wyjątkowo wysokie PKB w niektórych krajach, podczas gdy w Europie Wschodniej i Południowej odnotowano odstające wartości na dolnym poziomie.
 
-to chyba usune
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE}
-
-# 1. Grupowanie danych i obliczanie średniego PKB dla regionów
-data_region_year <- data %>%
-  group_by(Region, Rok) %>%
-  summarise(mean_PKB = mean(PKB), .groups = "drop")  # Średni PKB dla każdego roku i regionu
-
-# 2. Testy t-Studenta dla porównań między regionami
-
-# Pobranie unikalnych regionów
-regions <- unique(data$Region)
-
-# Przygotowanie wyników testów t-Studenta dla wszystkich par regionów
-results <- expand.grid(Region1 = regions, Region2 = regions) %>%
-  filter(Region1 != Region2) %>%
-  rowwise() %>%
-  mutate(
-    t_test = list(t.test(
-      data %>% filter(Region == Region1) %>% pull(PKB),
-      data %>% filter(Region == Region2) %>% pull(PKB),
-      alternative = "two.sided",
-      var.equal = FALSE
-    )),
-    p_value = t_test$p.value,
-    statistic = t_test$statistic
-  )
-
-# Dodanie korekty Bonferroniego dla wielokrotnych porównań
-results <- results %>%
-  mutate(p_adjusted = p.adjust(p_value, method = "bonferroni"))
-
-# 3. Wizualizacja - Wykres pudełkowy z oznaczeniem wyników testów t-Studenta
-
-ggplot(data, aes(x = Region, y = PKB, fill = Region)) +
-  geom_boxplot() +
-  geom_signif(
-    comparisons = list(c("Eastern Europe", "Western Europe"), c("Southern Europe", "Northern Europe")),  # Przykłady regionów
-    map_signif_level = TRUE
-  ) +
-  labs(
-    title = "Rozkład PKB w różnych regionach Europy",
-    x = "Region",
-    y = "PKB per capita"
-  ) +
-  theme_minimal() +
-  theme(legend.position = "none")
-
-ggplot(data_region_year, aes(x = Region, y = mean_PKB, fill = Region)) +
-  geom_bar(stat = "identity", show.legend = FALSE) +
-   
-  labs(
-    title = "Średnia wartość PKB per capita w regionach Europy",
-    x = "Region",
-    y = "Średnia wartość PKB"
-  ) +
-  theme_minimal()
-
-
-# 5. Wyświetlenie tabeli wyników testów t-Studenta
-results %>%
-  select(Region1, Region2, p_value, p_adjusted) %>%
-  arrange(p_value)
-```
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 data_2020 <- data %>%
@@ -571,8 +506,7 @@ ggplot(world_filtered) +
                         name = "Wartość PKB",    # Tytuł legendy
                         labels = scales::label_comma()) + # Skala kolorów
   theme_minimal() +  # Minimalistyczny wygląd
-  labs(title = "Mapa PKB w krajach Europy w 2020 roku",
-       subtitle = "PKB") +
+  labs(title = "Mapa PKB w krajach Europy w 2020 roku") +
   theme(axis.text = element_blank(),   # Usunięcie napisów osi
         axis.ticks = element_blank(),  # Usunięcie ticków osi
         axis.title = element_blank())  # Usunięcie tytułów osi
@@ -903,8 +837,45 @@ world_filtered <- world %>%
 1.  **Porównanie państw z największą i najmniejszą wartością współczynnika Giniego**
 
 ```{r, echo=FALSE, massage=FALSE, error=FALSE, warning=FALSE}
+# Filtracja danych dla krajów z najwyższymi wartościami Giniego
+data_top <- data %>%
+  filter(Kraj %in% top_countries)
+
+# Filtracja danych dla krajów z najniższymi wartościami Giniego
+data_bottom <- data %>%
+  filter(Kraj %in% bottom_countries)
+
+# Wykres dla krajów z najwyższymi wartościami Giniego
+plot_top <- ggplot(data_top, aes(x = Rok, y = G, color = Kraj)) +
+  geom_line(size = 1) +
+  labs(
+    title = "Kraje z najwyższymi wartościami współczynnika Giniego",
+    x = "Rok",
+    y = "Współczynnik Giniego",
+    color = "Kraj"
+  ) +
+  scale_color_brewer(palette = "Set1") +
+  theme_minimal()
+
+# Wykres dla krajów z najniższymi wartościami Giniego
+plot_bottom <- ggplot(data_bottom, aes(x = Rok, y = G, color = Kraj)) +
+  geom_line(size = 1) +
+  labs(
+    title = "Kraje z najniższymi wartościami współczynnika Giniego",
+    x = "Rok",
+    y = "Współczynnik Giniego",
+    color = "Kraj"
+  ) +
+  scale_color_brewer(palette = "Set1") +
+  theme_minimal()
+
+# Wyświetlenie obu wykresów obok siebie
+plot_top 
+plot_bottom
+
 
 ```
+Na podstawie wykresów można zauważyć, że kraje z najwyższymi wartościami współczynnika Giniego (Albania, Czarnogóra, Serbia) charakteryzują się znacznymi nierównościami dochodowymi, z widoczną zmiennością wartości w ostatnich latach. Z kolei kraje z najniższymi wartościami Giniego (Białoruś, Słowacja, Słowenia) wykazują stabilniejsze i niższe poziomy nierówności, co może świadczyć o efektywnej polityce redystrybucji dochodów.
 
 2.  **Porównanie całej Europy co dziesięciolecie w XXI wieku**
 
@@ -982,6 +953,7 @@ print(data_changes_1)
 ```
 Z pięciu państw, które doświadczyły największej zmiany współczynnika Giniego między 2000 a 2010 rokiem, aż trzy doświadczyły zmiany w kierunku większych nierówności dochodowych niż wcześniej. 
 ```{r, echo=FALSE, massage=FALSE, error=FALSE, warning=FALSE}
+
 print(data_changes_2)
 ```
 Między 2010 a 2020 rokiem zmiana dla Północnej Macedonii osiągają wysokość aż 9,25 punktów procentowych. Tym razem z pięciu najmocniej zmieniających się wartości, aż cztery są ujemne. Wskazuje to na trend w stronę wyrównania nierówności dochodowych w Północnej Macedonii, Polsce, Chorwacji i Słowacji.
@@ -1045,7 +1017,7 @@ Komentarz
 
 Na końcu tej sekcji przedstaw wnioski związane z odpowiedziami na pytania badawcze, np. "Z analizy wynika, że istnieje silna korelacja między PKB a poziomem nierówności dochodowych."
 
--   Wnioski dla 1 pytania
+-   Poziom PKB w Europie w 2000 roku był zróżnicowany, co odzwierciedlało różnice w rozwoju gospodarczym poszczególnych regionów. Kraje Europy Zachodniej i Północnej, takie jak Niemcy, Francja czy Norwegia, wyróżniały się wysokim poziomem dochodu na mieszkańca, a największe wartości odnotowano w Luksemburgu. Europa Południowa, obejmująca m.in. Hiszpanię i Włochy, charakteryzowała się średnim poziomem zamożności. Natomiast Europa Wschodnia, w tym kraje takie jak Rumunia czy Bułgaria, pozostawała na znacznie niższym poziomie rozwoju gospodarczego. Dane te pokazują wyraźne różnice między bardziej rozwiniętymi regionami zachodnimi i północnymi a mniej rozwiniętymi obszarami wschodnimi i południowymi Europy.
 
 <!-- -->
 
