@@ -68,7 +68,7 @@ Po przygotowaniu otrzymałyśmy zbiór około 13 tysięcy wartości w 9 kolumnac
 # include: flase - Ukrywa wynik kodu.
 
 # Ładowanie niezbędnych pakietów
-lapply(c("tidyverse", "e1071", "scales", "sf", "broom", "rnaturalearth", "ggsignif", "virdis"), library, character.only = TRUE)
+lapply(c("tidyverse", "e1071", "scales", "sf", "broom", "rnaturalearth", "ggsignif", "patchwork"), library, character.only = TRUE)
 ```
 
 ```{r, echo=FALSE, massage=FALSE, error=FALSE, warning=FALSE}
@@ -776,7 +776,7 @@ data_ue_04 <- data %>%
 ggplot(data_ue_04, aes(x = Rok, y = PKB, color = Kraj, linetype = Okres)) +  
   geom_line(
     data = data_avg_04, 
-    aes(x = Rok, y = średnie_PKB_UE_04, color = "Średnia PKB w UE"), 
+    aes(x = Rok, y = średnie_PKB_UE_04, color = "Średnia w UE"), 
     size = 0.7, 
     linetype = "dashed"
     ) +
@@ -791,8 +791,8 @@ ggplot(data_ue_04, aes(x = Rok, y = PKB, color = Kraj, linetype = Okres)) +
       "Polska" = "red",
       "Średnia PKB w UE" = "blue"
     ),
-     breaks = c("Średnia PKB w UE", "Słowenia", "Węgry", "Litwa", "Polska"),
-    name = "Kraj / Linia"
+     breaks = c("Średnia w UE", "Słowenia", "Węgry", "Litwa", "Polska"),
+    name = "Legenda"
   ) +
   labs(
     title = "Porównanie PKB w latach 1994 - 2014",
@@ -873,7 +873,7 @@ Wyniki t-testu sugerują, że wszystkie badane kraje doświadczyły istotnego wz
 
 ## Jak duże są nierówności dochodowe między państwami w Europie?
 
-Zbadanie współczynnika nierówności dochodowej w Europie.
+Postaramy się odpowiedzieć na powyższe pytanie analizując dostępne dane o wartościach współczynnika Giniego. Jest to wskaźnik stopnia nierówności w podziale dochodu, używany do oszacowania, jak bardzo rozkład dochodów danego kraju odbiega od równego podziału. To znaczy, im mniejsza będzie wartość współczynnika, tym lepiej.
 
 ```{r, echo=FALSE, massage=FALSE, error=FALSE, warning=FALSE}
 
@@ -900,120 +900,158 @@ world_filtered <- world %>%
   left_join(data_filtered, by = c("name" = "Kraj"))
 ```
 
-1. Porównanie współczynnika Giniego dla państw bogatszych i biedniejszych
+1.  **Porównanie państw z największą i najmniejszą wartością współczynnika Giniego**
 
 ```{r, echo=FALSE, massage=FALSE, error=FALSE, warning=FALSE}
-# Definiowanie list bogatych i biednych krajów
-rich_countries <- data %>%
-  filter(Kraj %in% c("Luxembourg", "Ireland", "Switzerland", "Norway"))
-
-poor_countries <- data %>%
-  filter(Kraj %in% c("Moldova", "Ukraine", "Belarus", "Bulgaria"))
-
-# Wykres dla bogatych krajów
-ggplot(rich_countries, aes(x = Rok, y = G, color = Kraj)) +
-  geom_point() +
-  labs(title = "Zmiany wskaźnika Giniego dla bogatszych państw",
-       x = "Rok", y = "Wskaźnik Giniego") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))  
-
-# Wykres dla biednych krajów
-ggplot(poor_countries, aes(x = Rok, y = G, color = Kraj)) +
-  geom_point() +
-  labs(title = "Zmiany wskaźnika Giniego dla biedniejszych państw",
-       x = "Rok", y = "Wskaźnik Giniego") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))  
 
 ```
 
-2. Porównanie całej Europy co dziesięciolecie
-
+2.  **Porównanie całej Europy co dziesięciolecie w XXI wieku**
 
 ```{r, echo=FALSE, massage=FALSE, error=FALSE, warning=FALSE}
-# Ustawienie układu 2x2 dla wykresów
-par(mfrow = c(2, 2))
+# Znalezienie globalnego zakresu wskaźnika Giniego
+global_gini_range <- range(data_filtered$G, na.rm = TRUE)
 
-# Wykres dla roku 1990
-world_filtered_1990 <- world %>%
-  filter(name %in% countries_to_show) %>%
-  left_join(data_filtered %>% filter(Rok == 1990), by = c("name" = "Kraj"))
+# Wspólny zakres kolorów
+color_limits <- c(global_gini_range[1], global_gini_range[2])
 
-ggplot(world_filtered_1990) + 
-  geom_sf(aes(fill = G), color = 'black') +  # Kolorowanie krajów na podstawie wskaźnika Giniego
-  coord_sf(crs = st_crs(3035),               # Ustawienie układu współrzędnych
-           xlim = c(2000000, 6200000), 
-           ylim = c(1500000, 5500000)) +     # Zakres widocznej części mapy
-  scale_fill_viridis_c(option = "C", na.value = 'white') +  # Skala kolorów i brak danych
-  labs(title = "Mapa nierówności dochodowych w 1990 roku") +
-  theme_minimal() +  # Minimalistyczny wygląd
-  theme(axis.text = element_blank(),   # Usunięcie napisów osi
-        axis.ticks = element_blank(),  # Usunięcie ticków osi
-        axis.title = element_blank())  # Usunięcie tytułów osi
+# Generowanie map dla każdego roku
+years <- c(2000, 2010, 2020)
 
-# Wykres dla roku 2000
-world_filtered_2000 <- world %>%
-  filter(name %in% countries_to_show) %>%
-  left_join(data_filtered %>% filter(Rok == 2000), by = c("name" = "Kraj"))
+plots <- lapply(years, function(year) {
+  data_year <- data_filtered %>%
+    filter(Rok == year)
+  
+  world_year <- world %>%
+    filter(name %in% countries_to_show) %>%
+    left_join(data_year, by = c("name" = "Kraj"))
+  
+  ggplot(world_year) +
+    geom_sf(aes(fill = G), color = 'black') +
+    coord_sf(crs = st_crs(3035),
+             xlim = c(2000000, 6200000), 
+             ylim = c(1500000, 5500000)) +
+    scale_fill_viridis_c(option = "C", na.value = 'white', limits = color_limits) +
+    labs(title = paste("Rok", year)) +
+    theme_minimal() +
+    theme(axis.text = element_blank(),
+          axis.ticks = element_blank(),
+          axis.title = element_blank())
+})
 
-ggplot(world_filtered_2000) + 
-  geom_sf(aes(fill = G), color = 'black') +  # Kolorowanie krajów na podstawie wskaźnika Giniego
-  coord_sf(crs = st_crs(3035),               # Ustawienie układu współrzędnych
-           xlim = c(2000000, 6200000), 
-           ylim = c(1500000, 5500000)) +     # Zakres widocznej części mapy
-  scale_fill_viridis_c(option = "C", na.value = 'white') +  # Skala kolorów i brak danych
-  labs(title = "Mapa nierówności dochodowych w 2000 roku") +
-  theme_minimal() +  # Minimalistyczny wygląd
-  theme(axis.text = element_blank(),   # Usunięcie napisów osi
-        axis.ticks = element_blank(),  # Usunięcie ticków osi
-        axis.title = element_blank())  # Usunięcie tytułów osi
-
-# Wykres dla roku 2010
-world_filtered_2010 <- world %>%
-  filter(name %in% countries_to_show) %>%
-  left_join(data_filtered %>% filter(Rok == 2010), by = c("name" = "Kraj"))
-
-ggplot(world_filtered_2010) + 
-  geom_sf(aes(fill = G), color = 'black') +  # Kolorowanie krajów na podstawie wskaźnika Giniego
-  coord_sf(crs = st_crs(3035),               # Ustawienie układu współrzędnych
-           xlim = c(2000000, 6200000), 
-           ylim = c(1500000, 5500000)) +     # Zakres widocznej części mapy
-  scale_fill_viridis_c(option = "C", na.value = 'white') +  # Skala kolorów i brak danych
-  labs(title = "Mapa nierówności dochodowych w 2010 roku") +
-  theme_minimal() +  # Minimalistyczny wygląd
-  theme(axis.text = element_blank(),   # Usunięcie napisów osi
-        axis.ticks = element_blank(),  # Usunięcie ticków osi
-        axis.title = element_blank())  # Usunięcie tytułów osi
-
-# Wykres dla roku 2020
-world_filtered_2020 <- world %>%
-  filter(name %in% countries_to_show) %>%
-  left_join(data_filtered %>% filter(Rok == 2020), by = c("name" = "Kraj"))
-
-ggplot(world_filtered_2020) + 
-  geom_sf(aes(fill = G), color = 'black') +  # Kolorowanie krajów na podstawie wskaźnika Giniego
-  coord_sf(crs = st_crs(3035),               # Ustawienie układu współrzędnych
-           xlim = c(2000000, 6200000), 
-           ylim = c(1500000, 5500000)) +     # Zakres widocznej części mapy
-  scale_fill_viridis_c(option = "C", na.value = 'white') +  # Skala kolorów i brak danych
-  labs(title = "Mapa nierówności dochodowych w 2020 roku") +
-  theme_minimal() +  # Minimalistyczny wygląd
-  theme(axis.text = element_blank(),   # Usunięcie napisów osi
-        axis.ticks = element_blank(),  # Usunięcie ticków osi
-        axis.title = element_blank())  # Usunięcie tytułów osi
-
-# Przywrócenie domyślnego układu wykresów
-par(mfrow = c(1, 1))
-
+# Wyświetlanie wykresów obok siebie
+plots[[1]] + plots[[2]] + plots[[3]] + 
+  plot_layout(ncol = 3)  +
+  plot_annotation(
+    title = "Porównanie nierówności dochodowych wg wskaźnika Giniego",
+    theme = theme(plot.title = element_text(size = 16, face = "bold", hjust = 0.5))
+  )
 
 ```
+Zauważmy, że wartości współczynnika Giniego nie zmieniają się mocno na przestrzeni lat, są to zmiany rzędu jedności. Wyniki wskazują, że pewne państwa prawie w ogóle nie polepszyły sytuacji nierówności dochodowych w XXI wieku. Zbadajmy, które kraje przeszły największe zmiany nierówności dochodowych w pierwszym i drugim dziesięcioleciu.
 
+```{r, echo=FALSE, massage=FALSE, error=FALSE, warning=FALSE}
+# Filtracja danych dla lat 2000 i 2010
+data_changes_1 <- data_filtered %>%
+  filter(Rok %in% c(2000, 2010)) %>%
+  group_by(Kraj, Rok) %>% 
+  summarise(G = mean(G, na.rm = TRUE), .groups = "drop") %>% # Średnia Giniego (jeśli są duplikaty)
+  pivot_wider(names_from = Rok, values_from = G) %>%
+  rename(Rok_2000 = `2000`, Rok_2010 = `2010`) %>%
+  mutate(
+    Zmiana = Rok_2010 - Rok_2000
+  ) %>%
+  arrange(desc(abs(Zmiana))) %>%      # Sortowanie według największej zmiany bezwzględnej
+  slice(1:5)                          # Wybór 5 krajów z największą zmianą
+
+# Filtracja danych dla lat 2010 i 2020
+data_changes_2 <- data_filtered %>%
+  filter(Rok %in% c(2010, 2020)) %>%
+  group_by(Kraj, Rok) %>%
+  summarise(G = mean(G, na.rm = TRUE), .groups = "drop") %>%
+  pivot_wider(names_from = Rok, values_from = G) %>%
+  rename(Year_2010 = `2010`, Year_2020 = `2020`) %>%
+  mutate(
+    Zmiana = Year_2020 - Year_2010
+  ) %>%
+  arrange(desc(abs(Zmiana))) %>%
+  slice(1:5)
+
+# Wyświetlenie tabeli z największymi zmianami
+print(data_changes_1)
+```
+Z pięciu państw, które doświadczyły największej zmiany współczynnika Giniego między 2000 a 2010 rokiem, aż trzy doświadczyły zmiany w kierunku większych nierówności dochodowych niż wcześniej. 
+```{r, echo=FALSE, massage=FALSE, error=FALSE, warning=FALSE}
+print(data_changes_2)
+```
+Między 2010 a 2020 rokiem zmiana dla Północnej Macedonii osiągają wysokość aż 9,25 punktów procentowych. Tym razem z pięciu najmocniej zmieniających się wartości, aż cztery są ujemne. Wskazuje to na trend w stronę wyrównania nierówności dochodowych w Północnej Macedonii, Polsce, Chorwacji i Słowacji.
+
+```{r, echo=FALSE, massage=FALSE, error=FALSE, warning=FALSE}
+
+# Filtracja danych dla lat 2000 i 2010
+data_changes_2000_2010 <- data_filtered %>%
+  filter(Rok %in% c(2000, 2010)) %>%
+  group_by(Kraj, Rok) %>%               # Grupa po kraju i roku
+  summarise(G = mean(G, na.rm = TRUE), .groups = "drop") %>% # Średnia Giniego (jeśli są duplikaty)
+  pivot_wider(names_from = Rok, values_from = G) %>%         # Pivotowanie danych
+  rename(Year_2000 = `2000`, Year_2010 = `2010`) %>%         # Zmiana nazw kolumn
+  mutate(
+    Change = Year_2010 - Year_2000,    # Obliczenie zmiany
+    Direction = case_when(
+      Change > 0 ~ "Wzrost",  
+      Change < 0 ~ "Spadek",
+      TRUE ~ "Brak zmiany"
+    )
+  )
+
+# Obliczenie procentów dla wzrostów i spadków
+percent_changes1 <- data_changes_2000_2010 %>%
+  count(Direction) %>%                  # Liczenie wystąpień każdej kategorii
+  mutate(Percentage = n / sum(n) * 100) # Obliczenie procentów
+
+# Wyświetlenie wyników
+print(percent_changes1)
+
+```
+```{r, echo=FALSE, massage=FALSE, error=FALSE, warning=FALSE}
+
+# Filtracja danych dla lat 2000 i 2010
+data_changes_2010_2020 <- data_filtered %>%
+  filter(Rok %in% c(2010, 2020)) %>%
+  group_by(Kraj, Rok) %>%               # Grupa po kraju i roku
+  summarise(G = mean(G, na.rm = TRUE), .groups = "drop") %>% # Średnia Giniego (jeśli są duplikaty)
+  pivot_wider(names_from = Rok, values_from = G) %>%         # Pivotowanie danych
+  rename(Year_2010 = `2010`, Year_2020 = `2020`) %>%         # Zmiana nazw kolumn
+  mutate(
+    Change = Year_2010 - Year_2020,    # Obliczenie zmiany
+    Direction = case_when(
+      Change > 0 ~ "Wzrost",  
+      Change < 0 ~ "Spadek",
+      TRUE ~ "Brak zmiany"
+    )
+  )
+
+# Obliczenie procentów dla wzrostów i spadków
+percent_changes2 <- data_changes_2010_2020 %>%
+  count(Direction) %>%                  # Liczenie wystąpień każdej kategorii
+  mutate(Percentage = n / sum(n) * 100) # Obliczenie procentów
+
+# Wyświetlenie wyników
+print(percent_changes2)
+
+```
+Komentarz 
 ## Wnioski
 
 Na końcu tej sekcji przedstaw wnioski związane z odpowiedziami na pytania badawcze, np. "Z analizy wynika, że istnieje silna korelacja między PKB a poziomem nierówności dochodowych."
 
+-   Wnioski dla 1 pytania
+
+<!-- -->
+
 -   Po analizie dostępnych danych, można stwierdzić, że rozpoczęcie członkostwa w Unii Europejskiej zarówno w 1995 jak i 2004 roku wydaje się być korzystną decyzją dla gospodarek badanych państw. Integracja w unii zdaje się częściej przyspieszać wzrost produktu krajowego brutto. Integracja gospodarcza, wspólny rynek i stabilność polityczno-gospodarcza mogły pozytywnie wpłynąć na gospodarki państw członkowskich, jednak dla głebszej analizy warto by wziąć pod uwagę inne czynniki, takie jak globalne trendy gospodarcze, struktura gospodarek, reformy wewnętrzne czy wpływy kryzysów.
+
+-   Wnioski dla 3 pytania
 
 # Podsumowanie
 
