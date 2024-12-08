@@ -38,50 +38,19 @@ Wszystkie dane są standaryzowane, aby umożliwić porównania między krajami i
 
 -   Skrót - trzycyfrowy kod kraju w formacie ISO 3166-1.
 
--   G - wskaźnik Giniego, czyli miara koncentracji rozkładu zmiennej losowej, w tym przypadku nierówności dochodowej, określona na przedziale 0-100 (w procentach). Wartość zerowa wspołczynnika wskazuje na pełną równomierność rozkładu.
-Średnia: 32
-Mediana: 32
-Odchylenie standardowe: 5
-Min: 16
-Max: 54
-Kwartyl 1: 29
-Kwartyl 3: 35
-IQR: 6
-Skala: 38
+-   G - wskaźnik Giniego, czyli miara koncentracji rozkładu zmiennej losowej, w tym przypadku nierówności dochodowej, określona na przedziale 0-100 (w procentach). Wartość zerowa wspołczynnika wskazuje na pełną równomierność rozkładu. Statystyki współczynnika Giniego w danych są następujące - średnia: 32, mediana: 32, odchylenie standardowe: 5, minimum: 16, maksimum: 54, kwartyl I: 29, kwartyl III: 35, IQR: 6, skala: 38.
 
--   Zasoby - szczegółowy podział zasobów
+-   Zasoby - szczegółowy podział zasobów, na przykład "Income, net", "Earnings, gross".
 
-    -   IDK CZY TO UWZGLĘDNIMY, to narazie bardziej dla nas, w oryginalnych danych mamy podział: "Consumption", "Income, net", "Income, net/gross", "Earnings, gross", "Income, gross", "Market income", "Taxable income, gross", "Taxable income, net", "Earnings, net", "Monetary income, net", "Monetary income, gross", "Factor income", "Monetary income, net (excluding property income)", "Earnings", "Taxable income, excluding property income", "Taxable income, gross (including deductions)".
-
--   Skala - szczegółowa skala normalizacji(?). ?przeskalowane dochody?
-
-    -   "Per capita", "OECD-modified", "Equivalized", "No adjustment", "Square root", "OECD", NA, "National scale", "1977 McClements scale".
+-   Skala - szczegółowa skala równoważności, na przykład "Per capita", "National scale".
 
 -   Region - grupowanie subregionalne, czyli podział na Europę północną, południową, zachodnią i wschodnią (oparte na geoschemacie Organizacji Narodów Zjednoczonych).
 
 -   UE - status należenia do Unii Europejskiej.
 
--   PKB - wartość produktu krajowego brutto w dolarach amerykańskich (USD).
-Średnia: 39 309
-Mediana: 38 120
-Odchylenie standardowe: 19 421
-Min: 4 901
-Max: 120 648
-Kwartyl 1: 26 583
-Kwartyl 3: 48 557
-IQR: 21 974
-Skala: 115 747
+-   PKB - wartość produktu krajowego brutto w dolarach amerykańskich (USD). Statystyki PKB to - średnia: 39 309, mediana: 38 120, odchylenie standardowe: 19 421, minimum: 4 901, maksimum: 120 648, kwartyl I: 26 583, kwartyl III: 48 557, IQR: 21 974, skala: 115 747.
 
-- Rok - rok w którym zostały zeprane dane.
-Średnia: 2007
-Mediana: 2009
-Odchylenie standardowe: 11
-Min: 1958
-Max: 2022
-Kwartyl 1: 2000
-Kwartyl 3: 2015
-IQR: 15
-Skala: 64
+-   Rok - rok, w którym zostały zebrane dane. Średnia: 2007, mediana: 2009, odchylenie standardowe: 11, minimum: 1958, maksimum: 2022, kwartyl I: 2000, kwartyl III: 2015, IQR: 15, skala: 64.
 
 ## Wczytanie i przygotowanie danych
 
@@ -98,12 +67,9 @@ Po przygotowaniu otrzymałyśmy zbiór około 13 tysięcy wartości w 9 kolumnac
 
 # Ładowanie niezbędnych pakietów
 lapply(c("tidyverse", "e1071", "scales", "sf", "broom", "rnaturalearth", "ggsignif", "patchwork"), library, character.only = TRUE)
-```
 
-```{r, echo=FALSE, massage=FALSE, error=FALSE, warning=FALSE}
 # Oczyszczanie danych
-
-data <- read_csv2("dane_WIID_2023.csv", show_col_types = FALSE) %>%
+data <- suppressMessages(read_csv2("dane_WIID_2023.csv", show_col_types = FALSE)) %>%
   filter(region_un == "Europe") %>%
   select(country, c3, year, gini, resource_detailed, scale_detailed, region_un_sub, eu, gdp) %>%
   mutate(across(c(country, c3, resource_detailed, scale_detailed, region_un_sub, eu), as.factor)) %>%
@@ -126,6 +92,9 @@ data <- read_csv2("dane_WIID_2023.csv", show_col_types = FALSE) %>%
     UE = eu,
     PKB = gdp
   )
+```
+
+```{r, echo=FALSE, massage=FALSE, error=FALSE, warning=FALSE}
 head(data)
 ```
 
@@ -185,17 +154,11 @@ print(statystyki_all)
 
 # Analiza danych
 
--   Dla cech kategorycznych: Analiza rozkładu, testy chi-kwadrat, kontyngencje.
-
-<!-- -->
-
--   Dla cech ciągłych: Analiza korelacji, testy t-studenta, regresja liniowa.
-
-Interpretacja wyników - Opisać wyniki analizy, odnosząc się do postawionych wcześniej pytań badawczych. Logicznie przedstawić wyniki, które prowadzą do odpowiedzi na pytania badawcze.
-
 ## Jaka jest zależność między położeniem geograficznym w Europie, a wysokością PKB i wzrostem gospodarczym państw na przestrzeni lat?
 
-W poniższyj analizie będziemy starały odpowiedzieć czy instnieje zależność między położeniem geograficznym w Europie, a wysokością PKB i wzrostem gospodarczym państw na przestrzeni lat.
+1\. **Porównanie państw z najniższymi i największymi wartościami PKB**
+
+W poniższej analizie będziemy starały się odpowiedzieć czy istnieje zależność między położeniem geograficznym w Europie, a wysokością PKB i wzrostem gospodarczym państw na przestrzeni lat.
 
 ```{r, echo=FALSE, massage=FALSE}
 # Filtracja danych dla roku 2000
@@ -248,7 +211,7 @@ ggplot(data_2000, aes(x = reorder(Kraj, PKB), y = PKB, fill = Region)) +
   )
 ```
 
-Aż siedem krajów z Europy Wschodniej występuję w rankingu piętnastu krajów w Europie z najwyższym PKB w 2000 roku. Luksemburg jest państwem z najwyższym PKB. Jest ono prawie dwa razy większe od PKB Szwajcarji, które zjamuje drugie miejsce w rankingu. Kraje Europy Północnej (np. Norwegia, Dania, Szwecja, Irlandia) również osiągnęły wysokie PKB,
+Aż siedem krajów z Europy Wschodniej występuje w rankingu piętnastu krajów w Europie z najwyższym PKB w 2000 roku. Luksemburg jest państwem z najwyższym PKB. Jest ono prawie dwa razy większe od PKB Szwajcarii, które zajmuje drugie miejsce w rankingu. Kraje Europy Północnej (np. Norwegia, Dania, Szwecja, Irlandia) również osiągnęły wysokie PKB,
 
 ```{r, echo=FALSE, massage=FALSE}
 # Filtracja danych dla roku 2020
@@ -277,8 +240,6 @@ ggplot(data_2020, aes(x = reorder(Kraj, PKB), y = PKB, fill = Region)) +
 
 W 2020 roku na czele listy krajów z najniższym PKB znalazły się kraje Południowej takie jak Macedonia Północna i Serbia. W porównaniu z rokiem 2000 wystepuję dużo więcej państw z Europy Południowj. Kraje Europy Wschodniej, takie jak Bułgaria, Rosja, Rumunia, wciąż dominują w zestawieniu najniższego PKB, ale zauważalny jest wzrost ich gospodarek w porównaniu do roku 2000.
 
-scale_fill_gradient(low = "lightblue", high = "darkblue",labels = scales::label_number(accuracy = 1))
-
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # Filtracja danych dla roku 2000
 data_2020 <- data %>%
@@ -304,7 +265,7 @@ ggplot(data_2020, aes(x = reorder(Kraj, PKB), y = PKB, fill = Region)) +
   )
 ```
 
-W 2020 roku najwyższe PKB nadal posiada Luksemburg co nie zmieniło sie w przeciągu 20 lat. Jednak róznica pomiędzy Luksemburgiem, a np. Iralndią nie jest już tak znaczna. Wciąż występuję dominajcja regionów północnych i zachodnich.
+W 2020 roku najwyższe PKB nadal posiada Luksemburg, co się nie zmieniło w przeciągu 20 lat. Jednak róznica pomiędzy Luksemburgiem, a np. Iralndią nie jest już tak znaczna. Wciąż występuje dominancja regionów północnych i zachodnich.
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 rich_countries <- c("Luxembourg", "Ireland", "Switzerland", "Norway", "Netherlands", "Denmark", "Austria")
@@ -348,9 +309,11 @@ plot_rich
 plot_poor
 ```
 
-Luksemburg i Irlandia odnotowały najszybszy wzrost PKB, szczególnie po 2000 roku. Irlandia osiągnęła gwałtowny wzrost ostatnich dwudziestu latach. Dania, Norwegia, Szwajcaria, Austria, i Holandia charakteryzują się stabilnym, ale mniej dynamicznym wzrostem w porównaniu do Irlandii i Luksemburga. W latach 2008-2009 widoczny jest spadek PKB w większości krajów, co jest efektem globalnego kryzysu finansowego.
+Luksemburg i Irlandia odnotowały najszybszy wzrost PKB, szczególnie po 2000 roku. Irlandia osiągnęła gwałtowny wzrost w ostatnich dwudziestu latach. Dania, Norwegia, Szwajcaria, Austria, i Holandia charakteryzują się stabilnym, ale mniej dynamicznym wzrostem w porównaniu do Irlandii i Luksemburga. W latach 2008-2009 widoczny jest spadek PKB w większości krajów, co jest efektem globalnego kryzysu finansowego.
 
-Dla krajów takich jak Rosja, Ukraina, Białoruś, Mołdawia czy Łotwa można zaobserwować znaczny spadek PKB w latach 90., co jest związane z rozpadem Związku Radzieckiego. Po roku 2000 widoczny jest wyraźny wzrost PKB we wszystkich analizowanych krajach, co wskazuje na poprawę sytuacji gospodarczej po trudnym okresie transformacji lat 90.
+Dla państw takich jak Rosja, Ukraina, Białoruś, Mołdawia czy Łotwa można zaobserwować znaczny spadek PKB w latach 90., co jest związane z rozpadem Związku Radzieckiego. Po roku 2000 widoczny jest wyraźny wzrost PKB we wszystkich analizowanych krajach, co wskazuje na poprawę sytuacji gospodarczej po trudnym okresie transformacji lat 90.
+
+2.  **Analiza PKB czterech części Europy na przestrzeni lat oraz porównując rok 2000 z 2020**
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 data_region_year <- data %>%
@@ -370,7 +333,7 @@ ggplot(data_region_year, aes(x = Rok, y = mean_PKB, color = Region)) +
   theme(legend.position = "bottom")
 ```
 
-Na wykresie zaobserwujemy zróżnicowany poziom PKB między regionami.Wszystkie regiony Europy wykazują wzrost PKB w analizowanym okresie, jednak region zachodni i północny rozwiją się najprężniej. Europa Zachodnia (Western Europe) odznacza się najwyższym poziomem PKB w całym okresie. Europa Wschodnia (Eastern Europe) ma najniższy poziom PKB, co wynika z opóźnienia w rozwoju gospodarczym w porównaniu z resztą regionów.
+Na wykresie zaobserwujemy zróżnicowany poziom PKB między regionami. Wszystkie części Europy wykazują wzrost PKB w analizowanym okresie, jednak region zachodni i północny rozwiją się najprężniej. Europa Zachodnia (Western Europe) odznacza się najwyższym poziomem PKB w całym okresie. Europa Wschodnia (Eastern Europe) ma najniższy poziom PKB, co wynika z opóźnienia w rozwoju gospodarczym w porównaniu z resztą regionów.
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # Obliczenie średniego PKB dla każdego regionu
@@ -393,7 +356,7 @@ ggplot(avg_pkb_region, aes(x = reorder(Region, Średni_PKB), y = Średni_PKB, fi
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-Średnia wartość PKB w roku 2000 znacznie rózniła sie między regionami.Europa Zachodnia miała najwyższe średnie PKB spośród wszystkich, za to Europa Wschodnia zanotowała njaniższe.Europa Północna zajmowała drugie miejsce pod względem wielkości PKB, a tuż za nią Europa Południowa.
+Średnia wartość PKB w roku 2000 znacznie rózniła sie między obszarami. Europa Zachodnia miała najwyższe średnie PKB spośród wszystkich, za to Europa Wschodnia zanotowała najniższe. Europa Północna zajmowała drugie miejsce pod względem wielkości PKB, a tuż za nią Europa Południowa.
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # Obliczenie średniego PKB dla każdego regionu
@@ -416,7 +379,7 @@ ggplot(avg_pkb_region, aes(x = reorder(Region, Średni_PKB), y = Średni_PKB, fi
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-W 2020 roku Europa Zachodnia i Północna pozostają liderami gospodarczymi. Rozwój gospodarczy Europy Wschodniej poskutkował zmniejszaniem się dysproporcji pomiędzy Europy Południowej. Pomimo postępu, różnice w poziomie PKB wciąż są widoczne choć mniejsze w porównaniu z 2000 rokiem.
+W 2020 roku Europa Zachodnia i Północna pozostają liderami gospodarczymi. Rozwój gospodarczy Europy Wschodniej poskutkował zmniejszeniem się dysproporcji pomiędzy nią a Europą Południową. Pomimo postępu, różnice w poziomie PKB wciąż są widoczne choć mniejsze w porównaniu z 2000 rokiem.
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 data_2020 <- data %>%
@@ -434,9 +397,7 @@ ggplot(data_2020, aes(x = Region, y = PKB, fill = Region)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
 ```
 
-Region Europy Zachodniej posiada największą medianę. Następnie Europa Północna, Europa Południowa, Europa Wschodnia. Rozstępy międzykwartylowe wskazują na większe zróżnicowanie wewnątrz Europy Południowej, podczas gdy Europa Wschodnia i Północna są bardziej jednorodne. Wartości odstające w Europie Zachodniej i Północnej pokazują wyjątkowo wysokie PKB w niektórych krajach, podczas gdy w Europie Wschodniej i Południowej odnotowano odstające wartości na dolnym poziomie.
-
-
+Zachodnia część Europy posiada największą medianę. Następnie Europa Północna, Europa Południowa, Europa Wschodnia. Rozstępy międzykwartylowe wskazują na większe zróżnicowanie wewnątrz Europy Południowej, podczas gdy Europa Wschodnia i Północna są bardziej jednorodne. Wartości odstające dla części Zachodniej i Północnej pokazują wyjątkowo wysokie PKB w niektórych krajach, podczas gdy w Europie Wschodniej i Południowej odnotowano odstające wartości na dolnym poziomie.
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 data_2020 <- data %>%
@@ -454,13 +415,13 @@ ggplot(data_2020, aes(x = Region, y = PKB, fill = Region)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
 ```
 
-Wszystkie regiony Europy odnotowały wzrost mediany PKB w 2020 roku w porównaniu do 2000 roku. Ranking wielkości median pozostaje niezmienny. Rozstępy międzykwartylowe sugerują, że największe różnice w PKB występują w Europie Południowej, a najmniejsze w Europie Wschodniej.Wartości odstające w Europie Zachodniej i Północnej potwierdzają istnienie liderów gospodarczych w tych regionach, podczas gdy w Europie Wschodniej wskazują na kraje zmagające się z trudnościami gospodarczymi.
+Wszystkie regiony Europy odnotowały wzrost mediany PKB w 2020 roku w porównaniu do 2000 roku. Ranking wielkości median pozostaje niezmienny. Rozstępy międzykwartylowe sugerują, że największe różnice w PKB występują w Europie Południowej, a najmniejsze w Europie Wschodniej. Wartości odstające w Europie Zachodniej i Północnej potwierdzają istnienie liderów gospodarczych w tych regionach, podczas gdy w Europie Wschodniej wskazują na kraje zmagające się z trudnościami gospodarczymi.
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
-# Krok 1: Wczytanie danych geograficznych krajów z rnaturalearth
+# Wczytanie danych geograficznych krajów z rnaturalearth
 world <- ne_countries(scale = 50, returnclass = 'sf')
 
-# Krok 3: Lista krajów do wyświetlenia (bez Rosji)
+# Lista krajów do wyświetlenia 
 countries_to_show <- c("Albania", "Austria", "Belarus", "Belgium", "Bulgaria", 
                        "Croatia", "Czechia", "Denmark", "Estonia", 
                        "Finland", "France", "Germany", "Greece", "Hungary", "Iceland", 
@@ -470,35 +431,35 @@ countries_to_show <- c("Albania", "Austria", "Belarus", "Belgium", "Bulgaria",
                        "Serbia and Montenegro", "Slovakia", "Slovenia", "Soviet Union", 
                        "Spain", "Sweden", "Switzerland", "Ukraine", "United Kingdom")
 
-# Krok 4: Filtruj dane, aby tylko wybrane kraje były w zbiorze i dla roku 2000
+# Filtracja danych dla roku 2000
 data_filtered <- data %>%
   filter(Kraj %in% countries_to_show) %>%
-  filter(Rok == 2000)  # Filtruj dane na rok 2000
+  filter(Rok == 2000) 
 
-# Krok 5: Połącz dane geograficzne z danymi o krajach
+# Połączenie dane geograficzne z danymi o krajach
 world_filtered <- world %>%
   filter(name %in% countries_to_show) %>%
   left_join(data_filtered, by = c("name" = "Kraj"))
 
-# Krok 6: Rysowanie mapy (bez etykiet i bez Rosji)
+# Rysowanie mapy 
 ggplot(world_filtered) + 
-  geom_sf(aes(fill = PKB), color = 'black') +  # Kolorowanie krajów na podstawie PKB
-  coord_sf(crs = st_crs(3035),                   # Ustawienie układu współrzędnych
+  geom_sf(aes(fill = PKB), color = 'black') +  
+  coord_sf(crs = st_crs(3035),
            xlim = c(2000000, 6200000), 
-           ylim = c(1500000, 5500000)) +         # Zakres widocznej części mapy
+           ylim = c(1500000, 5500000)) +
     scale_fill_viridis_c(option = "C", na.value = 'white') +
-    scale_fill_viridis_c(option = "C", na.value = 'white', # Kolor biały dla brakujących danych
-                        name = "Wartość PKB",    # Tytuł legendy
-                        labels = scales::label_comma()) + # Skala kolorów  # Skala kolorów
-  theme_minimal() +  # Minimalistyczny wygląd
+    scale_fill_viridis_c(option = "C", na.value = 'white',
+                        name = "Wartość PKB",
+                        labels = scales::label_comma()) +
+  theme_minimal() +
   labs(title = "Mapa PKB w krajach Europy w 2000 roku") +
-  theme(axis.text = element_blank(),   # Usunięcie napisów osi
-        axis.ticks = element_blank(),  # Usunięcie ticków osi
-        axis.title = element_blank())  # Usunięcie tytułów osi
+  theme(axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        axis.title = element_blank()) 
 
 ```
 
-Mapa PKB z 2000 roku zróżnicowanie gospodarcze w Europie w 2000 roku było wyraźnie widoczne między bogatą Europą Zachodnią i Północną, umiarkowanie rozwiniętą Europą Południową oraz rozwijającą się Europą Wschodnią.
+Zróżnicowanie gospodarcze w Europie w 2000 roku było wyraźnie widoczne - między bogatą Europą Zachodnią i Północną, umiarkowanie rozwiniętą Europą Południową oraz rozwijającą się Europą Wschodnią.
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # Krok 1: Wczytanie danych geograficznych krajów z rnaturalearth
@@ -541,11 +502,11 @@ ggplot(world_filtered) +
         axis.title = element_blank())  # Usunięcie tytułów osi
 ```
 
-Mapa PKB w krajach Europy w 2020 roku ukazuje istotne zróżnicowanie gospodarcze między regionami. Europa Zachodnia i Północna utrzymały najwyższe wartości PKB, wskazując na stabilny rozwój. Europa Południowa odnotowała umiarkowany wzros, a Europa Wschodnia zanotowała największy względny wzrost, choć poziom PKB nadal pozostaje najniższy. W porównaniu do 2000 roku we wszystkich regionach widoczny jest wyraźny wzrost gospodarczy, szczególnie w Europie Wschodniej.
+Mapa PKB w krajach Europy w 2020 roku ukazuje istotne zróżnicowanie gospodarcze między regionami. Europa Zachodnia i Północna utrzymały najwyższe wartości PKB, wskazując na stabilny rozwój. Europa Południowa odnotowała umiarkowany wzrost, a Europa Wschodnia zanotowała największy względny wzrost, choć poziom PKB nadal pozostaje najniższy. W porównaniu do 2000 roku we wszystkich częściach widoczny jest wyraźny wzrost gospodarczy, szczególnie w Europie Wschodniej.
 
 ## Czy dołączenie do Unii Europejskiej miało wpływ na zmianę PKB państw członkowskich?
 
-Unia Europejska powstała 1 listopada 1993 roku. Od lat odgrywa ona kluczową rolę w rozwoju państw członkowskich. W niniejszym sprawozdaniu zajmiemy się dwoma rozszerzeniami Unii Europejskiej - pierwszej z 1995 roku i drugiej z 2004 roku. Zbadamy czy w obrębie 10 lat od przystąpienia do Unii Europejskiej dane państwa na tym skorzystały - w sensie miary rozwoju gospodarczego, jakim jest produkt krajowy brutto.
+Unia Europejska powstała 1 listopada 1993 roku. Od lat odgrywa ona kluczową rolę w rozwoju państw członkowskich. W niniejszej części sprawozdania zajmiemy się dwoma rozszerzeniami Unii Europejskiej - pierwszej z 1995 roku i drugiej z 2004 roku. Zbadamy czy w obrębie 10 lat od przystąpienia do Unii Europejskiej dane państwa na tym skorzystały - w sensie miary rozwoju gospodarczego, jakim jest produkt krajowy brutto.
 
 ### Rok 1995 - dołączenie do UE Austrii, Szwecji i Finlandii
 
@@ -594,8 +555,7 @@ ggplot(data_ue_95, aes(x = Rok, y = PKB, color = Kraj, linetype = Okres)) +
     linetype = "dashed"
     ) +
   geom_point() +
-  #geom_line() +
-  #geom_smooth(method = "lm", se = TRUE) + #regresja liniowa
+  geom_smooth(method = "lm", se = FALSE) + #regresja liniowa
   scale_color_manual(
     values = c(
       "Austria" = "orange",
@@ -656,7 +616,7 @@ tempo_pkb_95 <- data_ue_95 %>%
 print(tempo_pkb_95)
 ```
 
-Z tabeli możemy odczytać, że Finlandia najlepiej skorzystała z akcesji do UE, bo średnie tempo wzrostu rozwoju PKB zwiększyło się aż o 2,5 %. W Szwecji również szybkość wzrostu PKB się zwiększyła po 1995 roku. Dane wskazują na lekki spadek tempa dla Austrii, jednak dane te mogą być niedokładne ze względu na braki danych o PKB Austrii w latach 1988-1993.
+Z tabeli możemy odczytać, że Finlandia najlepiej skorzystała z akcesji do UE, bo średnie tempo wzrostu rozwoju PKB zwiększyło się aż o 2,5%. W Szwecji również szybkość wzrostu PKB się zwiększyła po 1995 roku. Dane wskazują na lekki spadek tempa dla Austrii, jednak taki wynik może być niedokładny ze względu na braki danych o PKB Austrii w latach 1988-1993.
 
 Odchylenie standardowe tempa wzrostu będzie wskazywało na stabilność wzrostu. Dla wszystkich trzech państw rozproszenie wartości wokół średniej jest niskie. W Finlandii i Austrii widzimy, zmniejszenie się odchylenia standardowego po 1995 roku, co może sugerować stabilniejszą gospodarkę, bardziej przewidywalne roczne zmiany PKB, mniej narażone na wahania.
 
@@ -673,15 +633,15 @@ t_test_95 <- data_ue_95 %>%
   rename(
     "Różnica średnich" = estimate, 
     "p-wartość" = p.value, 
-    "Dolna gr" = conf.low, 
-    "Górna gr" = conf.high)
+    "Dolna granica CI" = conf.low, 
+    "Górna granica CI" = conf.high)
 
 print(t_test_95)
 ```
 
 Różnica średnich w każdym przypadku jest dodatnia i znajduje się w swoim przedziale ufności, zatem po wejściu w struktury UE nastąpił wzrost produktów krajowych brutto dla badanych państw. Bardzo małe p-wartości wskazują, że jest to statystycznie istotny wzrost.
 
-Zauważmy znowu na przykładzie Austrii jak ważne są kompletne dane - widzimy, że przedział ufności jest dużo szerszy i p-wartość dla danych z tego kraju jest znacznie większa niż dla Finlandii i Szwecji.
+Zauważmy znowu na przykładzie Austrii jak ważne są kompletne dane - widzimy, że przedział ufności (CI) jest dużo szerszy i p-wartość dla danych z tego kraju jest znacznie większa niż dla Finlandii i Szwecji.
 
 ### Rok 2004 - wybrane: Polska, Litwa, Słowenia, Węgry
 
@@ -744,8 +704,7 @@ ggplot(data_ue_04, aes(x = Rok, y = PKB, color = Kraj, linetype = Okres)) +
     linetype = "dashed"
     ) +
   geom_point() +
-  #geom_line() +
-  #geom_smooth(method = "lm", se = TRUE) + #regresja liniowa
+  geom_smooth(method = "lm", se = FALSE) + #regresja liniowa
   scale_color_manual(
     values = c(
       "Słowenia" = "orange",
@@ -774,7 +733,7 @@ ggplot(data_ue_04, aes(x = Rok, y = PKB, color = Kraj, linetype = Okres)) +
   theme(axis.text.x = element_text(size = 8))
 ```
 
-Wykres wskazuje na całkiem stabilny wzrost gospodarczy w latach 1994-2008. Dlaczego po 2008 wystąpiły takie wahania? W tej sytuacji należy spojrzeć na szerszy kontekst - na lata 2008-2009 przypadł szczyt globalnego kryzysu finansowego. Skutkiem tego, większość państw w Europie ucierpiała pod względem PKB. Jeśli spojrzymy na węższy zakres czasowy, np. 2000-2008 zauważalny jest szybszy wzrost wartości PKB po wejściu do unii, szczególnie dla Słowenii i Litwy. Zwróćmy uwagę, że średnia UE pozostaje na podobnym poziomie przez lata, natomiast badane państwa członkowskie zbliżają się do tej średniej.
+Wykres wskazuje na całkiem stabilny wzrost gospodarczy w latach 1994-2008. Dlaczego po 2008 wystąpiły takie wahania? W tej sytuacji należy spojrzeć na szerszy kontekst - na lata 2008-2009 przypadł szczyt globalnego kryzysu finansowego. Skutkiem tego, większość państw w Europie ucierpiała pod względem PKB. Stąd regresje liniowe na okres 2004-2014 dla Słowenii i Węgier wydają się wskazywać na brak rozwoju gospodarczego. Jeśli spojrzymy na węższy zakres czasowy, np. 2000-2008 zauważalny jest szybszy wzrost wartości PKB po wejściu do unii, szczególnie dla Słowenii i Litwy. Zwróćmy uwagę, że średnia UE pozostaje na podobnym poziomie przez lata, natomiast badane państwa członkowskie zbliżają się do tej średniej.
 
 2.  **Średnie tempo wzrostu PKB**
 
@@ -826,8 +785,8 @@ t_test_04 <- data_ue_04 %>%
   rename(
     "Różnica średnich" = estimate, 
     "p-wartość" = p.value, 
-    "Dolna gr" = conf.low, 
-    "Górna gr" = conf.high)
+    "Dolna granica CI" = conf.low, 
+    "Górna granica CI" = conf.high)
 
 print(t_test_04)
 ```
@@ -840,24 +799,24 @@ Postaramy się odpowiedzieć na powyższe pytanie analizując dostępne dane o w
 
 ```{r, echo=FALSE, massage=FALSE, error=FALSE, warning=FALSE}
 
-# Krok 1: Wczytanie danych geograficznych krajów z rnaturalearth
+# Wczytanie danych geograficznych krajów z rnaturalearth
 world <- ne_countries(scale = 50, returnclass = 'sf')
 
-# Krok 3: Lista krajów do wyświetlenia (bez Rosji)
+# Lista krajów do wyświetlenia
 countries_to_show <- c("Albania", "Austria", "Belarus", "Belgium", "Bulgaria", 
                        "Croatia", "Czechia", "Denmark", "Estonia", 
-                       "Finland", "France", "Germany", "Greece", "Hungary", "Iceland", 
-                       "Ireland", "Italy", "Latvia", "Lithuania", "Luxembourg", "Malta", 
-                       "Moldova", "Montenegro", "Netherlands", "North Macedonia", 
-                       "Norway", "Poland", "Portugal", "Romania", "Serbia", "Russia",
-                       "Serbia and Montenegro", "Slovakia", "Slovenia", "Soviet Union", 
-                       "Spain", "Sweden", "Switzerland", "Ukraine", "United Kingdom")
+                       "Finland", "France", "Germany", "Greece", "Hungary", 
+                       "Iceland","Ireland", "Italy", "Latvia", "Lithuania", 
+                       "Luxembourg", "Malta","Moldova", "Montenegro", 
+                       "Netherlands", "North Macedonia", "Norway", "Poland", 
+                       "Portugal", "Romania", "Serbia", "Russia", "Slovakia", 
+                       "Slovenia", "Soviet Union", "Spain", "Sweden",
+                       "Switzerland", "Ukraine", "United Kingdom")
 
-# Krok 4: Filtruj dane, aby tylko wybrane kraje były w zbiorze i dla lat 1980, 1990, 2000, 2010, 2020
+# Filtracja danych i połączenie danych geograficznych z tymi o państwach
 data_filtered <- data %>%
   filter(Kraj %in% countries_to_show)
-  
-# Krok 5: Połącz dane geograficzne z danymi o krajach
+
 world_filtered <- world %>%
   filter(name %in% countries_to_show) %>%
   left_join(data_filtered, by = c("name" = "Kraj"))
@@ -866,46 +825,40 @@ world_filtered <- world %>%
 1.  **Porównanie państw z największą i najmniejszą wartością współczynnika Giniego**
 
 ```{r, echo=FALSE, massage=FALSE, error=FALSE, warning=FALSE}
-
-countries_to_show <- c("Albania", "Austria", "Belarus", "Belgium", "Bulgaria", 
-                       "Croatia", "Czechia", "Denmark", "Estonia", 
-                       "Finland", "France", "Germany", "Greece", "Hungary", "Iceland", 
-                       "Ireland", "Italy", "Latvia", "Lithuania", "Luxembourg", "Malta", 
-                       "Moldova", "Montenegro", "Netherlands", "North Macedonia", 
-                       "Norway", "Poland", "Portugal", "Romania", "Serbia", "Russia",
-                       "Serbia and Montenegro", "Slovakia", "Slovenia", "Soviet Union", 
-                       "Spain", "Sweden", "Switzerland", "Ukraine", "United Kingdom")
-data_filtered <- data %>%
-  filter(Kraj %in% countries_to_show)
+# Uśrednianie wartości Giniego w przypadku powtarzających się lat
+data_filtered_G <- data_filtered %>%
+  group_by(Kraj, Rok) %>%
+  summarize(G = mean(G, na.rm = TRUE), .groups = "drop")
 
 # Wybór trzech krajów z najwyższymi wartościami Giniego
-top_countries <- data_filtered %>%
+top_countries <- data_filtered_G %>%
   group_by(Kraj) %>%
   summarize(max_G = max(G, na.rm = TRUE)) %>%
   arrange(desc(max_G)) %>%
   slice_head(n = 3) %>%
-  pull(Kraj) # Pobierz nazwy krajów
+  pull(Kraj) 
 
 # Wybór trzech krajów z najniższymi wartościami Giniego
-bottom_countries <- data_filtered %>%
+bottom_countries <- data_filtered_G %>%
   group_by(Kraj) %>%
   summarize(min_G = min(G, na.rm = TRUE)) %>%
   arrange(min_G) %>%
   slice_head(n = 3) %>%
-  pull(Kraj) # Pobierz nazwy krajów
+  pull(Kraj) 
 
 # Filtracja danych dla top_countries i bottom_countries
-data_top <- data_filtered %>%
-  filter(Kraj %in% top_countries)
+data_top <- data_filtered_G %>%
+  filter(Rok >= 1990, Kraj %in% top_countries)
 
-data_bottom <- data_filtered %>%
-  filter(Kraj %in% bottom_countries)
+data_bottom <- data_filtered_G %>%
+  filter(Rok >= 1990, Kraj %in% bottom_countries)
 
 # Wykres dla krajów z najwyższymi wartościami Giniego
 plot_top <- ggplot(data_top, aes(x = Rok, y = G, color = Kraj)) +
-  geom_line(size = 1) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
   labs(
-    title = "Kraje z najwyższymi wartościami współczynnika Giniego",
+    title = "Kraje z najwyższymi wartościami wsp. Giniego",
     x = "Rok",
     y = "Współczynnik Giniego",
     color = "Kraj"
@@ -915,9 +868,10 @@ plot_top <- ggplot(data_top, aes(x = Rok, y = G, color = Kraj)) +
 
 # Wykres dla krajów z najniższymi wartościami Giniego
 plot_bottom <- ggplot(data_bottom, aes(x = Rok, y = G, color = Kraj)) +
-  geom_line(size = 1) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
   labs(
-    title = "Kraje z najniższymi wartościami współczynnika Giniego",
+    title = "Kraje z najniższymi wartościami wsp. Giniego",
     x = "Rok",
     y = "Współczynnik Giniego",
     color = "Kraj"
@@ -928,12 +882,11 @@ plot_bottom <- ggplot(data_bottom, aes(x = Rok, y = G, color = Kraj)) +
 # Wyświetlenie obu wykresów obok siebie
 plot_top 
 plot_bottom
-
-
 ```
-Na podstawie wykresów można zauważyć, że kraje z najwyższymi wartościami współczynnika Giniego (Albania, Czarnogóra, Serbia) charakteryzują się znacznymi nierównościami dochodowymi, z widoczną zmiennością wartości w ostatnich latach. Z kolei kraje z najniższymi wartościami Giniego (Białoruś, Słowacja, Słowenia) wykazują stabilniejsze i niższe poziomy nierówności, co może świadczyć o efektywnej polityce redystrybucji dochodów.
 
-2.  **Porównanie całej Europy co dziesięciolecie w XXI wieku**
+Na podstawie wykresów można zauważyć, że kraje z najwyższymi wartościami współczynnika Giniego (Mołdawia, Rosja, Ukraina) charakteryzują się znacznymi nierównościami dochodowymi, z widoczną zmiennością wartości w ostatnich latach. Z kolei państwa z najniższymi wartościami Giniego (Bułgaria, Czechy, Słowacja) wykazują stabilniejsze i niższe poziomy nierówności, co może świadczyć o efektywnej polityce redystrybucji dochodów.
+
+2.  **Porównanie dla roku 2000 i 2020**
 
 ```{r, echo=FALSE, massage=FALSE, error=FALSE, warning=FALSE}
 # Znalezienie globalnego zakresu wskaźnika Giniego
@@ -943,7 +896,7 @@ global_gini_range <- range(data_filtered$G, na.rm = TRUE)
 color_limits <- c(global_gini_range[1], global_gini_range[2])
 
 # Generowanie map dla każdego roku
-years <- c(2000, 2010, 2020)
+years <- c(2000, 2020)
 
 plots <- lapply(years, function(year) {
   data_year <- data_filtered %>%
@@ -966,132 +919,94 @@ plots <- lapply(years, function(year) {
           axis.title = element_blank())
 })
 
-# Wyświetlanie wykresów obok siebie
-plots[[1]] + plots[[2]] + plots[[3]] + 
-  plot_layout(ncol = 3)  +
+# Wykres dla roku 2000
+plots[[1]] +
   plot_annotation(
-    title = "Porównanie nierówności dochodowych wg wskaźnika Giniego",
-    theme = theme(plot.title = element_text(size = 16, face = "bold", hjust = 0.5))
+    title = "Mapa nierówności dochodowych wg wsk. Giniego w roku 2000",
+    theme = theme(plot.title = element_text(size = 14, hjust = 0.5))
   )
 
+# Wykres dla roku 2020
+plots[[2]] +
+  plot_annotation(
+    title = "Mapa nierówności dochodowych wg wsk. Giniego w roku 2020",
+    theme = theme(plot.title = element_text(size = 14, hjust = 0.5))
+  )
 ```
-Zauważmy, że wartości współczynnika Giniego nie zmieniają się mocno na przestrzeni lat, są to zmiany rzędu jedności. Wyniki wskazują, że pewne państwa prawie w ogóle nie polepszyły sytuacji nierówności dochodowych w XXI wieku. Zbadajmy, które kraje przeszły największe zmiany nierówności dochodowych w pierwszym i drugim dziesięcioleciu.
+
+Zauważmy, że wartości współczynnika Giniego nie zmieniają się mocno na przestrzeni lat, są to zmiany rzędu kilku punktów procentowych. Wyniki wskazują, że pewne państwa prawie w ogóle nie polepszyły sytuacji nierówności dochodowych w XXI wieku. Zbadajmy, które kraje przeszły największe zmiany nierówności dochodowych w badanym przedziale czasowym.
 
 ```{r, echo=FALSE, massage=FALSE, error=FALSE, warning=FALSE}
-# Filtracja danych dla lat 2000 i 2010
-data_changes_1 <- data_filtered %>%
-  filter(Rok %in% c(2000, 2010)) %>%
+# Filtracja danych dla lat 2000 i 2020
+data_changes <- data_filtered %>%
+  filter(Rok %in% c(2000, 2020)) %>%
   group_by(Kraj, Rok) %>% 
   summarise(G = mean(G, na.rm = TRUE), .groups = "drop") %>% # Średnia Giniego (jeśli są duplikaty)
   pivot_wider(names_from = Rok, values_from = G) %>%
-  rename(Rok_2000 = `2000`, Rok_2010 = `2010`) %>%
+  rename(Rok_2000 = `2000`, Rok_2020 = `2020`) %>%
   mutate(
-    Zmiana = Rok_2010 - Rok_2000
+    Zmiana = Rok_2020 - Rok_2000
   ) %>%
   arrange(desc(abs(Zmiana))) %>%      # Sortowanie według największej zmiany bezwzględnej
-  slice(1:5)                          # Wybór 5 krajów z największą zmianą
-
-# Filtracja danych dla lat 2010 i 2020
-data_changes_2 <- data_filtered %>%
-  filter(Rok %in% c(2010, 2020)) %>%
-  group_by(Kraj, Rok) %>%
-  summarise(G = mean(G, na.rm = TRUE), .groups = "drop") %>%
-  pivot_wider(names_from = Rok, values_from = G) %>%
-  rename(Year_2010 = `2010`, Year_2020 = `2020`) %>%
-  mutate(
-    Zmiana = Year_2020 - Year_2010
-  ) %>%
-  arrange(desc(abs(Zmiana))) %>%
-  slice(1:5)
+  slice(1:10)                          # Wybór 5 krajów z największą zmianą
 
 # Wyświetlenie tabeli z największymi zmianami
-print(data_changes_1)
+print(data_changes)
 ```
-Z pięciu państw, które doświadczyły największej zmiany współczynnika Giniego między 2000 a 2010 rokiem, aż trzy doświadczyły zmiany w kierunku większych nierówności dochodowych niż wcześniej. 
-```{r, echo=FALSE, massage=FALSE, error=FALSE, warning=FALSE}
 
-print(data_changes_2)
-```
-Między 2010 a 2020 rokiem zmiana dla Północnej Macedonii osiągają wysokość aż 9,25 punktów procentowych. Tym razem z pięciu najmocniej zmieniających się wartości, aż cztery są ujemne. Wskazuje to na trend w stronę wyrównania nierówności dochodowych w Północnej Macedonii, Polsce, Chorwacji i Słowacji.
+Z dziesięciu państw, które doświadczyły największej zmiany współczynnika Giniego między 2000 a 2020 rokiem, aż sześć doświadczyło zmiany w kierunku mniejszych nierówności dochodowych niż wcześniej.
 
 ```{r, echo=FALSE, massage=FALSE, error=FALSE, warning=FALSE}
 
-# Filtracja danych dla lat 2000 i 2010
-data_changes_2000_2010 <- data_filtered %>%
-  filter(Rok %in% c(2000, 2010)) %>%
-  group_by(Kraj, Rok) %>%               # Grupa po kraju i roku
-  summarise(G = mean(G, na.rm = TRUE), .groups = "drop") %>% # Średnia Giniego (jeśli są duplikaty)
-  pivot_wider(names_from = Rok, values_from = G) %>%         # Pivotowanie danych
-  rename(Year_2000 = `2000`, Year_2010 = `2010`) %>%         # Zmiana nazw kolumn
+# Filtracja danych dla lat 2000 i 2020
+data_changes_2000_2020 <- data_filtered %>%
+  filter(Rok %in% c(2000, 2020)) %>%
+  group_by(Kraj, Rok) %>%
+  summarise(G = mean(G, na.rm = TRUE), .groups = "drop") %>%
+  pivot_wider(names_from = Rok, values_from = G) %>% 
+  rename(Rok_2000 = `2000`, Rok_2020 = `2020`) %>%  
   mutate(
-    Change = Year_2010 - Year_2000,    # Obliczenie zmiany
-    Direction = case_when(
-      Change > 0 ~ "Wzrost",  
-      Change < 0 ~ "Spadek",
+    Zmiana = Rok_2020 - Rok_2000,
+    Kierunek = case_when(
+      Zmiana > 0 ~ "Wzrost",  
+      Zmiana < 0 ~ "Spadek",
       TRUE ~ "Brak zmiany"
     )
   )
 
 # Obliczenie procentów dla wzrostów i spadków
-percent_changes1 <- data_changes_2000_2010 %>%
-  count(Direction) %>%                  # Liczenie wystąpień każdej kategorii
-  mutate(Percentage = n / sum(n) * 100) # Obliczenie procentów
+percent_changes <- data_changes_2000_2020 %>%
+  count(Kierunek) %>%
+  mutate(Procent = n / sum(n) * 100) %>%
+  rename("Liczba zbadanych państw" = n)
 
 # Wyświetlenie wyników
-print(percent_changes1)
-
+print(percent_changes)
 ```
-```{r, echo=FALSE, massage=FALSE, error=FALSE, warning=FALSE}
+W 17 zdabanych państwach nierówność dochodów wewnątrz badanego kraju zmalała między 2000 a 2020 rokiem, jednak dla 18 krajów sytuacja nierówności się nie poprawiła. Po zbadaniu wielkości wskaźnika Giniego w Europie możemy wywnioskować, że dążenie do równych zarobków w społeczeństwie nie jest ogólnoeuropejskim trendem.  
 
-# Filtracja danych dla lat 2000 i 2010
-data_changes_2010_2020 <- data_filtered %>%
-  filter(Rok %in% c(2010, 2020)) %>%
-  group_by(Kraj, Rok) %>%               # Grupa po kraju i roku
-  summarise(G = mean(G, na.rm = TRUE), .groups = "drop") %>% # Średnia Giniego (jeśli są duplikaty)
-  pivot_wider(names_from = Rok, values_from = G) %>%         # Pivotowanie danych
-  rename(Year_2010 = `2010`, Year_2020 = `2020`) %>%         # Zmiana nazw kolumn
-  mutate(
-    Change = Year_2010 - Year_2020,    # Obliczenie zmiany
-    Direction = case_when(
-      Change > 0 ~ "Wzrost",  
-      Change < 0 ~ "Spadek",
-      TRUE ~ "Brak zmiany"
-    )
-  )
-
-# Obliczenie procentów dla wzrostów i spadków
-percent_changes2 <- data_changes_2010_2020 %>%
-  count(Direction) %>%                  # Liczenie wystąpień każdej kategorii
-  mutate(Percentage = n / sum(n) * 100) # Obliczenie procentów
-
-# Wyświetlenie wyników
-print(percent_changes2)
-
-```
-Komentarz 
 ## Wnioski
-
-Na końcu tej sekcji przedstaw wnioski związane z odpowiedziami na pytania badawcze, np. "Z analizy wynika, że istnieje silna korelacja między PKB a poziomem nierówności dochodowych."
 
 -   Poziom PKB w Europie w 2000 roku był zróżnicowany, co odzwierciedlało różnice w rozwoju gospodarczym poszczególnych regionów. Kraje Europy Zachodniej i Północnej, takie jak Niemcy, Francja czy Norwegia, wyróżniały się wysokim poziomem dochodu na mieszkańca, a największe wartości odnotowano w Luksemburgu. Europa Południowa, obejmująca m.in. Hiszpanię i Włochy, charakteryzowała się średnim poziomem zamożności. Natomiast Europa Wschodnia, w tym kraje takie jak Rumunia czy Bułgaria, pozostawała na znacznie niższym poziomie rozwoju gospodarczego. Dane te pokazują wyraźne różnice między bardziej rozwiniętymi regionami zachodnimi i północnymi a mniej rozwiniętymi obszarami wschodnimi i południowymi Europy.
 
-<!-- -->
-
 -   Po analizie dostępnych danych, można stwierdzić, że rozpoczęcie członkostwa w Unii Europejskiej zarówno w 1995 jak i 2004 roku wydaje się być korzystną decyzją dla gospodarek badanych państw. Integracja w unii zdaje się częściej przyspieszać wzrost produktu krajowego brutto. Integracja gospodarcza, wspólny rynek i stabilność polityczno-gospodarcza mogły pozytywnie wpłynąć na gospodarki państw członkowskich, jednak dla głebszej analizy warto by wziąć pod uwagę inne czynniki, takie jak globalne trendy gospodarcze, struktura gospodarek, reformy wewnętrzne czy wpływy kryzysów.
 
--   Wnioski dla 3 pytania
+-   Wskaźnik Giniego mierzący nierówności zarobkowe na poziomie państwowym utrzymuje się w Europie w wartościach od 20% do 45%. Większe wartości wskaźnika obserwujemy dla mniej rozwiniętych państw, co oznacza, że jest o wiele więcej biednych obywateli niż bogatych. Nie ma konkretnego trendu zmiany tego wskaźnika między 2000 rokiem, a 2020 dla państw europejskich.
 
 # Podsumowanie
 
-Przypomnienie najważniejszych wniosków z analizy.
+Przeanalizowane zostały dane z World Income Inequality Database na temat zamożności i nierówności dochodowych w Europie badając:
 
-# Dyskusja
+- zależność między położeniem geograficznym a poziomem PKB;
 
-Myślę, że to bardzo fajny dodatkowy akapit, który warto uwzględnić na lepsze punkciki :)
+- wpływ przystąpienia do Unii Europejskiej na rozwój gospodarczy;
 
--   **Ograniczenia**: Omówienie wszelkiech ograniczeń analizy, np. problem z jakością danych, brakującymi wartościami, czy ograniczonym zakresem badanych zmiennych.
+- nierówności dochodowe mierzone wskaźnikiem Giniego.
 
-    -   Dane PKB powinny być porównane z inflacją, bezrobociem itp. w 2 pytaniu przydałyby się informacje o wielkości funduszy UE, ale nie mieliśmy dostępu do takich danych, więc taka analiza nie jest do końca zgodna z prawdą(efektywna?)
-    -   Integracja gospodarcza, wspólny rynek i stabilność polityczno-gospodarcza mogły pozytywnie wpłynąć. Dla głebszej analizy warto wziąć pod uwagę inne czynniki, takie jak globalne trendy gospodarcze, struktura gospodarek, reformy wewnętrzne czy wpływy kryzysów.
+Z analizy danych udało nam się odpowiedzieć na powyższe pytania:
 
--   **Propozycje przyszłych badań**: Zasugerowanie, co można by zbadać w przyszłości, aby poszerzyć lub pogłębić wyniki.
+- Kraje Europy Zachodniej i Północnej dominują pod względem zamożności, a Wschodnia Europa odnotowała dynamiczne zmiany po transformacji ustrojowej.
+
+- Integracja z Unią Europejską pozytywnie wpłynęła na gospodarki większości nowych członków, co przejawiało się szybszym wzrostem gospodarczym i stabilizacją ekonomiczną.
+
+- Kraje o wyższym PKB mają mniejsze nierówności, co sugeruje korelację między bogactwem a równym podziałem dochodów. Pomimo ogólnego wzrostu gospodarczego, dążenie do zmniejszenia nierówności nie jest wspólnym trendem dla wszystkich państw.
