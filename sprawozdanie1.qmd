@@ -866,12 +866,39 @@ world_filtered <- world %>%
 1.  **Porównanie państw z największą i najmniejszą wartością współczynnika Giniego**
 
 ```{r, echo=FALSE, massage=FALSE, error=FALSE, warning=FALSE}
-# Filtracja danych dla krajów z najwyższymi wartościami Giniego
-data_top <- data %>%
+
+countries_to_show <- c("Albania", "Austria", "Belarus", "Belgium", "Bulgaria", 
+                       "Croatia", "Czechia", "Denmark", "Estonia", 
+                       "Finland", "France", "Germany", "Greece", "Hungary", "Iceland", 
+                       "Ireland", "Italy", "Latvia", "Lithuania", "Luxembourg", "Malta", 
+                       "Moldova", "Montenegro", "Netherlands", "North Macedonia", 
+                       "Norway", "Poland", "Portugal", "Romania", "Serbia", "Russia",
+                       "Serbia and Montenegro", "Slovakia", "Slovenia", "Soviet Union", 
+                       "Spain", "Sweden", "Switzerland", "Ukraine", "United Kingdom")
+data_filtered <- data %>%
+  filter(Kraj %in% countries_to_show)
+
+# Wybór trzech krajów z najwyższymi wartościami Giniego
+top_countries <- data_filtered %>%
+  group_by(Kraj) %>%
+  summarize(max_G = max(G, na.rm = TRUE)) %>%
+  arrange(desc(max_G)) %>%
+  slice_head(n = 3) %>%
+  pull(Kraj) # Pobierz nazwy krajów
+
+# Wybór trzech krajów z najniższymi wartościami Giniego
+bottom_countries <- data_filtered %>%
+  group_by(Kraj) %>%
+  summarize(min_G = min(G, na.rm = TRUE)) %>%
+  arrange(min_G) %>%
+  slice_head(n = 3) %>%
+  pull(Kraj) # Pobierz nazwy krajów
+
+# Filtracja danych dla top_countries i bottom_countries
+data_top <- data_filtered %>%
   filter(Kraj %in% top_countries)
 
-# Filtracja danych dla krajów z najniższymi wartościami Giniego
-data_bottom <- data %>%
+data_bottom <- data_filtered %>%
   filter(Kraj %in% bottom_countries)
 
 # Wykres dla krajów z najwyższymi wartościami Giniego
