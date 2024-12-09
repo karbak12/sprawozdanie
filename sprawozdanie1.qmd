@@ -58,6 +58,7 @@ Z bazy danych WIID będziemy w niniejszym raporcie skupiać się na analizie dan
 
 Po przygotowaniu otrzymałyśmy zbiór około 13 tysięcy wartości w 9 kolumnach. Prezentuje się on następująco:
 
+
 ```{r, echo=FALSE, massage=FALSE, error=FALSE, warning=FALSE, include=FALSE}
 # echo: false - Ukrywa kod.
 # warning: false - Ukrywa ostrzeżenia.
@@ -172,7 +173,7 @@ ggplot(data_2000, aes(x = reorder(Kraj, PKB), y = PKB, fill = Region)) +
   geom_bar(stat = "identity", color = "black") +
   coord_flip() +
   labs(
-    title = "15 krajów w Europie z najniższym PKB w 2000 roku",
+    title = "15 krajów w Europie z najniższym PKB w 2000 r.",
     x = "Kraj",
     y = "PKB"
   ) +
@@ -325,7 +326,7 @@ ggplot(data_region_year, aes(x = Rok, y = mean_PKB, color = Region)) +
   geom_point(size = 2) +  # Punkty danych
   geom_smooth(method = "lm", formula = y ~ x, se = FALSE, size = 1) +  # Linie regresji
   labs(
-    title = "Regresja liniowa PKB w Europie w zależności od regionu od 1958 do 2022",
+    title = "Regresja liniowa PKB w Europie w zależności od regionu",
     x = "Rok",
     y = "Wartość PKB"
   ) +
@@ -347,7 +348,7 @@ avg_pkb_region <- data %>%
 ggplot(avg_pkb_region, aes(x = reorder(Region, Średni_PKB), y = Średni_PKB, fill = Region)) +
   geom_bar(stat = "identity") +
   labs(
-    title = "Średnia wartość PKB w regionach Europy w 2000",
+    title = "Średnia wartość PKB w 2000 roku",
     x = "Region",
     y = "PKB",
     fill = "Region"
@@ -370,7 +371,7 @@ avg_pkb_region <- data %>%
 ggplot(avg_pkb_region, aes(x = reorder(Region, Średni_PKB), y = Średni_PKB, fill = Region)) +
   geom_bar(stat = "identity") +
   labs(
-    title = "Średnia wartość PKB w regionach Europy w 2020",
+    title = "Średnia wartość PKB w 2020 roku",
     x = "Region",
     y = "PKB",
     fill = "Region"
@@ -389,7 +390,7 @@ data_2020 <- data %>%
 ggplot(data_2020, aes(x = Region, y = PKB, fill = Region)) +
   geom_boxplot() +
   labs(
-    title = "Wykres pudełkowy rozkładu PKB w regionach Europy w 2000 roku",
+    title = "Wykres pudełkowy PKB w Europie w 2000 roku",
     x = "Region",
     y = "PKB"
   ) +
@@ -407,7 +408,7 @@ data_2020 <- data %>%
 ggplot(data_2020, aes(x = Region, y = PKB, fill = Region)) +
   geom_boxplot() +
   labs(
-    title = "Wykres pudełkowy rozkładu PKB w regionach Europy w 2020 roku",
+    title = "Wykres pudełkowy PKB Europie w 2020 roku",
     x = "Region",
     y = "PKB"
   ) +
@@ -547,40 +548,43 @@ data_ue_95 <- data %>%
   )
 
 # Wykres
-ggplot(data_ue_95, aes(x = Rok, y = PKB, color = Kraj, linetype = Okres)) +  
-  geom_line(
-    data = data_avg_95, 
-    aes(x = Rok, y = średnie_PKB_UE, color = "Średnia w UE"), 
-    size = 0.7, 
-    linetype = "dashed"
+suppressWarnings({
+  ggplot(data_ue_95, aes(x = Rok, y = PKB, color = Kraj, linetype = Okres)) +  
+    geom_line(
+      data = data_avg_95, 
+      aes(x = Rok, y = średnie_PKB_UE, color = "Średnia w UE"), 
+      size = 0.7, 
+      linetype = "dashed"
     ) +
-  geom_point() +
-  geom_smooth(method = "lm", se = FALSE) + #regresja liniowa
-  scale_color_manual(
-    values = c(
-      "Austria" = "orange",
-      "Finlandia" = "purple",
-      "Szwecja" = "green",
-      "Średnia w UE" = "blue"
-    ),
-     breaks = c("Austria", "Finlandia", "Szwecja", "Średnia w UE"),
-    name = "Legenda"
-  ) +
-  labs(
-    title = "Porównanie PKB w latach 1985 - 2005",
-    x = "Rok",
-    y = "PKB (USD per capita)",
-    color = "Kraj",
-    linetype = "Okres"
-  ) +
-  theme_minimal() +
-  scale_x_continuous(
-    limits = c(1985, 2005),
-    breaks = seq(1985, 2005, 2),
-    labels = function(x) format(x, digits = 4)
-  ) +
-  geom_vline(xintercept = 1995, linetype = "dotdash", color = "black") +  
-  theme(axis.text.x = element_text(size = 8))
+    geom_point() +
+    geom_smooth(se = FALSE, formula = y ~ x, method = "lm") + # Usunięcie komunikatu
+    scale_color_manual(
+      values = c(
+        "Austria" = "orange",
+        "Finlandia" = "purple",
+        "Szwecja" = "green",
+        "Średnia w UE" = "blue"
+      ),
+      breaks = c("Austria", "Finlandia", "Szwecja", "Średnia w UE"),
+      name = "Legenda"
+    ) +
+    labs(
+      title = "Porównanie PKB w latach 1985 - 2005",
+      x = "Rok",
+      y = "PKB (USD per capita)",
+      color = "Kraj",
+      linetype = "Okres"
+    ) +
+    theme_minimal() +
+    scale_x_continuous(
+      limits = c(1985, 2005),
+      breaks = seq(1985, 2005, 2),
+      labels = function(x) format(x, digits = 4)
+    ) +
+    geom_vline(xintercept = 1995, linetype = "dotdash", color = "black") +  
+    theme(axis.text.x = element_text(size = 8))
+})
+
 ```
 
 Z wykresu możemy wnioskować, że akcesja sprawiła przybliżenie PKB Finlandii, Szwecji i Austrii do średniej PKB Unii oraz ustabilizowała rozwój gospodarczy dla Finlandii.
@@ -704,7 +708,7 @@ ggplot(data_ue_04, aes(x = Rok, y = PKB, color = Kraj, linetype = Okres)) +
     linetype = "dashed"
     ) +
   geom_point() +
-  geom_smooth(method = "lm", se = FALSE) + #regresja liniowa
+  geom_smooth(method = "lm", se = FALSE,formula = y ~ x) + #regresja liniowa
   scale_color_manual(
     values = c(
       "Słowenia" = "orange",
@@ -869,7 +873,7 @@ plot_top <- ggplot(data_top, aes(x = Rok, y = G, color = Kraj)) +
 # Wykres dla krajów z najniższymi wartościami Giniego
 plot_bottom <- ggplot(data_bottom, aes(x = Rok, y = G, color = Kraj)) +
   geom_point() +
-  geom_smooth(method = "lm", se = FALSE) +
+  geom_smooth(formula = y ~ x,method = "lm", se = FALSE) +
   labs(
     title = "Kraje z najniższymi wartościami wsp. Giniego",
     x = "Rok",
