@@ -1,0 +1,190 @@
+---
+title: "Porównanie funkcji mocy testów statystycznych w różnych warunkach"
+author: 
+  - name: "Amelia Bieda"
+    index: "275973"
+  - name: "Karolina Bakalarz"
+    index: "276059"
+format: pdf
+editor: visual
+lang: pl
+---
+```{r, echo=FALSE, massage=FALSE, error=FALSE, warning=FALSE, include=FALSE}
+library('tidyverse')
+```
+# Wprowadzenie
+
+W analizie statystycznej często stajemy przed problemem testowania hipotez dotyczących wartości oczekiwanej populacji. W tym celu wykorzystuje się różne testy statystyczne, w zależności od założeń dotyczących rozkładu danych i dostępnych informacji o populacji.
+
+W niniejszej analizie rozważamy testy na poziomie istotności $\alpha = 0.05$. Zastosowano trzy testy do weryfikacji hipotezy zerowej $H_0: \mu = 3$, przeciwko hipotezie alternatywnej $H_1: \mu \not= 3$.
+
+1.  Test Z przy założeniu $\sigma = 2$ - wykorzystywany przy znanej wariancji populacji, bazuje na rozkładzie normalnym statystyki testowej;
+
+2.  Test Studenta - stosowany przy nieznanej wariancji, którą należy oszacować na podstawie próby, sprawdza czy średnia populacji istotnie się różni od wartości z hipotezy.
+
+3.  Test rang znakowanych Wilcoxona - jest testem nieparametrycznym, z którego korzystamy, gdy nie można założyć normalności rozkładu badanych danych, dzięki porównywaniu median, a nie średnich jest odporniejszy na odchylenia od założeń normalności.
+
+Porównanie funkcji mocy tych testów pozwala ocenić ich skuteczność w wykrywaniu różnic względem wartości oczekiwanej w populacji oraz określić, czy istnieje test jednostajnie najmocniejszy w danym przypadku. Dzięki implementacji testów w języku R możemy za pomocą symulacji Monte Carlo przeanalizować funkcje mocy oraz prawdziwość postawionych hipotez.
+
+# Zadanie 1
+
+Rozważmy próbę $(X_1, ... , X_{100})$ z rozkładu normalnego $\cal N (\mu, 2^2)$. Korzystając z symulacji Monte Carlo wykonaj wykres funkcji mocy w zależności od $\mu$ na przedziale $(1, 5)$ dla wszystkich trzech testów. Czy istnieje test jednostajnie najmocniejszy spośród nich?
+
+```{r, echo=FALSE, massage=FALSE, error=FALSE, warning=FALSE}
+# Definicje testów
+z_test <- function(sample, mu_0, sigma){
+  z_stat <- (mean(sample) - mu_0) / (sigma / sqrt(length(sample)))
+  p_value <- 2 * (1 - pnorm(abs(z_stat)))
+  return(p_value < alpha)
+}
+
+t_test <- function(sample, mu_0){
+  t_stat <- (mean(sample) - mu_0) / (sd(sample) / sqrt(length(sample)))
+  p_value <- 2 * (1 - pt(abs(t_stat), df = length(sample) -1))
+  return(p_value < alpha)
+}
+
+wilcoxon_test <- function(sample, mu_0){
+  test_result <- wilcox.test(sample, mu = mu_0, alternative = "two.sided", exact = FALSE)
+  return(test_result$p.value < alpha)
+}
+
+# Zdefiniowanie parametrów
+alpha <- 0.05
+n <- 100
+R <- 1000
+sigma <- 2
+mu_values <- seq(1, 5, length.out = 100)
+
+# Funkcja mocy
+power_z <- numeric(length(mu_values))
+power_t <- numeric(length(mu_values))
+power_wilcoxon <- numeric(length(mu_values))
+
+# Symulacja Monte Carlo
+for (i in 1:length(mu_values)) {
+  mu <- mu_values[i]
+  
+  z_rejections <- 0
+  t_rejections <- 0
+  wilcoxon_rejections <- 0
+  
+  for (j in 1:R) {
+    sample <- rnorm(n, mean = mu, sd = sigma)
+    
+    if (z_test(sample, 3, sigma)) z_rejections <- z_rejections + 1
+    if (t_test(sample, 3)) t_rejections <- t_rejections + 1
+    if (wilcoxon_test(sample, 3)) wilcoxon_rejections <- wilcoxon_rejections + 1
+  }
+  
+  power_z[i] <- z_rejections / R
+  power_t[i] <- t_rejections / R
+  power_wilcoxon[i] <- wilcoxon_rejections / R
+}
+
+# Wykres
+plot(mu_values, power_z, type = "l", col = "red", lty = 2, ylim = c(0, 1), xlab = "mu", ylab = "Moc testu", main = "Funkcja mocy")
+lines(mu_values, power_t, col = "green", lty = 1)
+lines(mu_values, power_wilcoxon, col = "blue", lty = 3)
+abline(v = 3, col = "black", lty = 4)  # Linia dla H0: μ = 3
+legend("bottomright", legend = c("Test Z", "Test t-Studenta", "Test Wilcoxona"), col = c("red", "green", "blue"), lty = c(2, 1, 3), bty = "n")
+```
+W badanym przypadku nie istnieje test jednostajnie najmocniejszy z wykorzystanych testów. Wszystkie trzy są bardzo skuteczne - przy wartości $\mu$ bliskiej $3$ moce testów są niskie, co oznacza rzadkie, prawdopodobnie bliskie zeru szanse na odrzucenie hipotezy zerowej. Wraz z oddalaniem się wartości $\mu$ od zadanego w hipotezie zerowej $\mu=3$, rośnie funkcja mocy dla wszystkich wykorzystanych testów, co oczywiście oznacza zwiększenie się prawdopodobieństwa odrzucenia hipotezy zerowej na korzyść hipotezy alternatywnej $\mu\not=3$.
+
+# Zadanie 2
+
+Rozważmy próbę $(X_1, ... , X_{100})$ z rozkładu normalnego $\cal N(\mu, 4^2)$. Wykonaj wykres funkcji mocy na wybranym przedziale zawierającym przynajmniej po jednym punkcie z hipotezy zerowej i alternatywnej. Jak zmieniła się funkcja mocy testów? Czy w tym przypadku istnieje test jednostajnie najmocniejszy spośród nich?
+
+```{r, echo=FALSE, massage=FALSE, error=FALSE, warning=FALSE}
+# Parametry
+sigma <- 4  
+mu_values <- seq(0, 6, length.out = 100)
+
+# Funkcja mocy
+power_z <- numeric(length(mu_values))
+power_t <- numeric(length(mu_values))
+power_wilcoxon <- numeric(length(mu_values))
+
+# Symulacja Monte Carlo
+for (i in 1:length(mu_values)) {
+  mu <- mu_values[i]
+  
+  z_rejections <- 0
+  t_rejections <- 0
+  wilcoxon_rejections <- 0
+  
+  for (j in 1:R) {
+    sample <- rnorm(n, mean = mu, sd = sigma)
+    
+    if (z_test(sample, 3, sigma)) z_rejections <- z_rejections + 1
+    if (t_test(sample, 3)) t_rejections <- t_rejections + 1
+    if (wilcoxon_test(sample, 3)) wilcoxon_rejections <- wilcoxon_rejections + 1
+  }
+  
+  power_z[i] <- z_rejections / R
+  power_t[i] <- t_rejections / R
+  power_wilcoxon[i] <- wilcoxon_rejections / R
+}
+
+# Wykres funkcji mocy
+plot(mu_values, power_z, type = "l", col = "red", lty = 2, ylim = c(0, 1), xlab = "mu", ylab = "Moc testu", main = "Funkcja mocy")
+lines(mu_values, power_t, col = "green", lty = 1)
+lines(mu_values, power_wilcoxon, col = "blue", lty = 3)
+abline(v = 3, col = "black", lty = 4)  # Linia dla H0: μ = 3
+legend("bottomright", legend = c("Test Z", "Test t-Studenta", "Test Wilcoxona"), col = c("red", "green", "blue"), lty = c(2, 1, 3), bty = "n")
+
+```
+Tak jak w poprzednim przypadku, moc testów jest najniższa w okolicach trójki co oznacza, że rzadko odrzucają one hipotezę zerową, gdy jest ona prawdziwa.
+Im dalej od trójki tym większa moc testów, szczególnie dla $\mu < 1$ oraz $\mu>5$ prawdopodobieństwo przyjęcia hipotezy alternatywnej jest bliskie lub nawet równe 1. Zauważalny jest wpływ zwiększonej wariancji w porównaniu do poprzedniego zadania - funkcja mocy rośnie wolniej. Dla wartości $\mu$ bliskich 3 testy mają niższą moc, zatem trudniej jest wykryć niewielkie odchylenia od hipotezy zerowej. Nie istnieje test jednostajnie najmocniejszy w rozważanym zadaniu.
+
+# Zadanie 3
+
+Rozważmy próbę $(X_1, ... , X_{100})$ z rozkładu wykładniczego $\cal Exp(1/\mu)$. Wykonaj wykres funkcji mocy na wybranym przedziale zawierającym przynajmniej po jednym punkcie z hipotezy zerowej i alternatywnej. Jak zmieniła się funkcja mocy testów? Czy w tym przypadku istnieje test jednostajnie najmocniejszy spośród nich?
+
+```{r, echo=FALSE, massage=FALSE, error=FALSE, warning=FALSE}
+# Test Z (zakładamy estymację)
+z_test <- function(sample, mu_0){
+  sample_mean <- mean(sample)
+  z_stat <- (sample_mean - mu_0) / (sample_mean / sqrt(length(sample)))
+  p_value <- 2 * (1 - pnorm(abs(z_stat)))
+  return(p_value < alpha)
+}
+
+# Funkcja mocy
+mu_values <- seq(0, 5, length.out = 100) 
+power_z <- numeric(length(mu_values))
+power_t <- numeric(length(mu_values))
+power_wilcoxon <- numeric(length(mu_values))
+
+# Symulacja Monte Carlo
+for (i in 1:length(mu_values)) {
+  mu <- mu_values[i]
+  
+  z_rejections <- 0
+  t_rejections <- 0
+  wilcoxon_rejections <- 0
+  
+  for (j in 1:R) {
+    sample <- rexp(n, rate = 1 / mu)  # Próba z rozkładu wykładniczego
+    
+    if (z_test(sample, 1)) z_rejections <- z_rejections + 1
+    if (t_test(sample, 1)) t_rejections <- t_rejections + 1
+    if (wilcoxon_test(sample, 1)) wilcoxon_rejections <- wilcoxon_rejections + 1
+  }
+  
+  power_z[i] <- z_rejections / R
+  power_t[i] <- t_rejections / R
+  power_wilcoxon[i] <- wilcoxon_rejections / R
+}
+
+# Wykres funkcji mocy
+plot(mu_values, power_z, type = "l", col = "red", lty = 2, ylim = c(0, 1), xlab = expression(mu), ylab = "Moc testu", main = "Funkcja mocy")
+lines(mu_values, power_t, col = "green", lty = 1)
+lines(mu_values, power_wilcoxon, col = "blue", lty = 3)
+abline(v = 3, col = "black", lty = 4) 
+legend("bottomright", legend = c("Test Z", "Test t-Studenta", "Test Wilcoxona"), col = c("red", "green", "blue"), lty = c(2, 1, 3), bty = "n")
+```
+Wykres funkcji mocy testu Z i t-Studenta są identyczne, z najmniejszą wartością blisko jedynki. Średnia rozkładu wykładniczego o parametrze skali $1/\mu$ wynosi $\mu$, jednak testy są przystosowane dla rozkładu normalnego, stąd dla asymetrycznego rozkładu wykładniczego nie są odporne i wychodzi większe prawdopodobieństwo popełnienia błędu I i II rodzaju. Wariancja tego rozkładu wynosi $1/\mu^2$, więc dla mniejszych wartości $\mu$ wariancja jest większa, co również utrudnia wykrycie różnic mięzy hipotezami. Test Wilcoxona rośnie wolniej niż testy parametryczne, ma najmniejszą wartość przy $1.2$ (bliżej trójki niż poprzednie testy). Jest mniej wrażliwy na skośność rozkładu i nie zakłada normalności. Mimo nienakładania się funkcji mocy testów parametrycznych z testem nieparametrycznym, nie istnieje w tym przypadku test jednoznacznie najmocniejszy.
+
+# Podsumowanie
+Dla normalnych danych i dużych próbek wszystkie trzy testy dają bardzo podobne wyniki. Większa wariancja zmniejsza moc testów parametrycznych przez mniejszą zdolność do wykrywania małych odchyleń od hipotezy zerowej. Test Wilcoxona działa dobrze dla danych normanych, a dla danych z rozkładu wykłaniczego jest dokładniejszy od testów parametrycznych, jednak nie jest idealny i jego moc również zależy od struktury danych. Przy niespełnionych założeniach testów dużo łatwiej o błędne wnioski dla $H_0$ i $H_1$. 
